@@ -1193,10 +1193,36 @@ function setStatus(msg, type) {
   el.style.color = type === 'ok' ? '#4a9' : type === 'err' ? '#c47' : type === 'warn' ? '#c8860a' : 'var(--muted)';
 }
 
+
+// ─── RECEBER CIFRA VIA URL (Atalho do Siri) ──────────────────────────────────
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const title   = params.get('title');
+  const artist  = params.get('artist');
+  const key     = params.get('key');
+  const content = params.get('content');
+
+  if (title && content) {
+    // Pre-fill the modal and open it
+    document.getElementById('f-title').value   = title;
+    document.getElementById('f-artist').value  = artist || '';
+    document.getElementById('f-content').value = content;
+    if (key) {
+      const sel = document.getElementById('f-key');
+      for (let opt of sel.options) { if (opt.value === key) { sel.value = key; break; } }
+    }
+    document.getElementById('modal-title-text').textContent = 'Cifra Importada';
+    document.getElementById('modal').classList.add('open');
+    // Clean URL so refresh doesn't re-open
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 renderSongs();
 renderSetlist();
 renderCifras();
+checkUrlParams();
 </script>
 
 <!-- MODAL IMPORTAR -->
