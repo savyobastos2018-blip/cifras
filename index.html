@@ -1319,7 +1319,7 @@ async function loadFromCloud() { // returns promise
     const d = await r.json();
     const rows = d.values || [];
     if (rows.length === 0) {
-      showSyncStatus('Nuvem vazia — usando dados locais.');
+      showSyncStatus('Nuvem vazia.');
       return;
     }
 
@@ -1362,7 +1362,15 @@ function scheduleSync() {
 renderSongs();
 renderSetlist();
 renderCifras();
+// Always load from cloud on start, ignore local cache
 loadFromCloud().finally(() => checkUrlParams());
+
+// Reload from cloud when app comes back to foreground (e.g. switching apps on iPhone)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    loadFromCloud();
+  }
+});
 </script>
 
 <!-- MODAL IMPORTAR -->
