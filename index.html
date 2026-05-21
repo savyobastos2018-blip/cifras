@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Cifras — Setlist</title>
-<link rel="icon" type="image/svg+xml" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="apple-touch-icon" href="logo.svg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cifras Setlist">
@@ -650,7 +650,9 @@
 <!-- HEADER -->
 <header>
   <div class="logo">♩ Cifras <span>Setlist</span></div>
+  <span id="sync-status" style="font-size:0.7rem;color:#4a9;align-self:center;"></span>
   <div style="display:flex;gap:8px;">
+    <button class="header-btn" style="background:var(--bg-dark3);color:var(--cream);border:1px solid #3e3830;" onclick="loadFromCloud()">☁️</button>
     <button class="header-btn" style="background:var(--bg-dark3);color:var(--cream);border:1px solid #3e3830;" onclick="openImportModal()">🔗 Link</button>
     <button class="header-btn" onclick="openModal()">+ Música</button>
   </div>
@@ -1225,11 +1227,138 @@ function checkUrlParams() {
   }
 }
 
+
+// ─── GOOGLE SHEETS SYNC ───────────────────────────────────────────────────────
+const SHEET_ID = '1-ZOaKFoaGlnytARIMggzA-FKknOJtStTglX4gfczNKM';
+const API_KEY  = 'AIzaSyDh2PfHoJQtDj9fGfyiXeMqPcgcXCfdkq8';
+const SHEET_NAME = 'Músicas';
+const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`;
+
+let cloudSyncing = false;
+
+function showSyncStatus(msg, ok=true) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? '#4a9' : '#c47';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.textContent = '', 3000);
+}
+
+async function ensureSheet() {
+  // Check if sheet tab exists, create if not
+  try {
+    const r = await fetch(`${BASE_URL}?key=${API_KEY}&fields=sheets.properties.title`);
+    const d = await r.json();
+    const exists = d.sheets?.some(s => s.properties.title === SHEET_NAME);
+    if (!exists) {
+      // Add sheet tab
+      await fetch(`${BASE_URL}:batchUpdate?key=${API_KEY}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({requests:[{addSheet:{properties:{title:SHEET_NAME}}}]})
+      });
+      // Add header row
+      await fetch(`${BASE_URL}/values/${SHEET_NAME}!A1:F1:append?valueInputOption=RAW&key=${API_KEY}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({values:[['id','title','artist','key','content','setlist']]})
+      });
+    }
+  } catch(e) { console.error('ensureSheet:', e); }
+}
+
+async function syncToCloud() {
+  if (cloudSyncing) return;
+  cloudSyncing = true;
+  showSyncStatus('☁️ Salvando...');
+  try {
+    await ensureSheet();
+
+    // Build rows: one per song
+    const rows = songs.map(s => [
+      s.id,
+      s.title,
+      s.artist || '',
+      s.key,
+      s.content,
+      setlist.includes(s.id) ? setlist.indexOf(s.id) : ''
+    ]);
+
+    // Clear existing data (keep header)
+    await fetch(`${BASE_URL}/values/${SHEET_NAME}!A2:F1000:clear?key=${API_KEY}`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'}
+    });
+
+    if (rows.length > 0) {
+      await fetch(`${BASE_URL}/values/${SHEET_NAME}!A2:append?valueInputOption=RAW&key=${API_KEY}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({values: rows})
+      });
+    }
+    showSyncStatus('✅ Salvo na nuvem!');
+  } catch(e) {
+    showSyncStatus('❌ Erro ao salvar: ' + e.message, false);
+    console.error(e);
+  }
+  cloudSyncing = false;
+}
+
+async function loadFromCloud() {
+  showSyncStatus('☁️ Carregando...');
+  try {
+    await ensureSheet();
+    const r = await fetch(`${BASE_URL}/values/${SHEET_NAME}!A2:F1000?key=${API_KEY}`);
+    const d = await r.json();
+    const rows = d.values || [];
+    if (rows.length === 0) {
+      showSyncStatus('Nuvem vazia — usando dados locais.');
+      return;
+    }
+
+    // Rebuild songs
+    songs = rows.map(r => ({
+      id:      r[0] || uid(),
+      title:   r[1] || '',
+      artist:  r[2] || '',
+      key:     r[3] || 'G',
+      content: r[4] || ''
+    }));
+
+    // Rebuild setlist from column F (index in setlist)
+    const setlistMap = {};
+    rows.forEach(r => {
+      if (r[5] !== '' && r[5] !== undefined) setlistMap[parseInt(r[5])] = r[0];
+    });
+    setlist = Object.keys(setlistMap).sort((a,b)=>a-b).map(k => setlistMap[k]);
+
+    save();
+    renderSongs(document.getElementById('search-input').value);
+    renderSetlist();
+    renderCifras();
+    showSyncStatus('✅ Músicas carregadas da nuvem!');
+  } catch(e) {
+    showSyncStatus('❌ Erro ao carregar: ' + e.message, false);
+    console.error(e);
+  }
+}
+
+// Auto-sync after every save
+const _origSave = save;
+function save() {
+  _origSave();
+  clearTimeout(save._debounce);
+  save._debounce = setTimeout(syncToCloud, 1500);
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 renderSongs();
 renderSetlist();
 renderCifras();
 checkUrlParams();
+loadFromCloud();
 </script>
 
 <!-- MODAL IMPORTAR -->
