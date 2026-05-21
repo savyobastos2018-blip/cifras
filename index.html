@@ -1306,7 +1306,7 @@ async function syncToCloud() {
   cloudSyncing = false;
 }
 
-async function loadFromCloud() {
+async function loadFromCloud() { // returns promise
   showSyncStatus('☁️ Carregando...');
   try {
     await ensureSheet();
@@ -1347,18 +1347,18 @@ async function loadFromCloud() {
 
 // Auto-sync after every save
 const _origSave = save;
+window._syncTimer = null;
 function save() {
   _origSave();
-  clearTimeout(save._debounce);
-  save._debounce = setTimeout(syncToCloud, 1500);
+  clearTimeout(window._syncTimer);
+  window._syncTimer = setTimeout(syncToCloud, 1500);
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 renderSongs();
 renderSetlist();
 renderCifras();
-checkUrlParams();
-loadFromCloud();
+loadFromCloud().finally(() => checkUrlParams());
 </script>
 
 <!-- MODAL IMPORTAR -->
