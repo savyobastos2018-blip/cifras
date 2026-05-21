@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2a2018"/>
+      <stop offset="100%" stop-color="#0e0b08"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0d080"/>
+      <stop offset="40%" stop-color="#c8860a"/>
+      <stop offset="100%" stop-color="#8b5e0a"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5e090"/>
+      <stop offset="100%" stop-color="#c8860a"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="url(#bg)"/>
+
+  <!-- Outer border ring -->
+  <rect x="18" y="18" width="476" height="476" rx="68" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.5"/>
+  <rect x="24" y="24" width="464" height="464" rx="64" fill="none" stroke="url(#gold)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Top ornament line -->
+  <line x1="100" y1="108" x2="412" y2="108" stroke="url(#gold)" stroke-width="1" opacity="0.6"/>
+  <line x1="120" y1="113" x2="392" y2="113" stroke="url(#gold)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Diamond ornament top center -->
+  <polygon points="256,90 264,108 256,118 248,108" fill="url(#gold)" opacity="0.9"/>
+  <polygon points="256,94 261,108 256,115 251,108" fill="#f5e090" opacity="0.6"/>
+
+  <!-- Musical note - left side, stylized -->
+  <!-- Note head -->
+  <ellipse cx="158" cy="230" rx="22" ry="16" fill="url(#gold)" transform="rotate(-15 158 230)" filter="url(#glow)"/>
+  <ellipse cx="158" cy="230" rx="14" ry="9" fill="#1a1208" transform="rotate(-15 158 230)"/>
+  <!-- Note stem -->
+  <rect x="177" y="155" width="4" height="82" rx="2" fill="url(#gold2)"/>
+  <!-- Note flag -->
+  <path d="M181 155 Q210 170 205 195 Q195 175 181 178" fill="url(#gold)"/>
+  <path d="M181 168 Q206 182 200 205 Q192 187 181 190" fill="url(#gold)" opacity="0.7"/>
+
+  <!-- Staff lines behind note -->
+  <line x1="88" y1="210" x2="210" y2="210" stroke="url(#gold)" stroke-width="1.2" opacity="0.25"/>
+  <line x1="88" y1="222" x2="210" y2="222" stroke="url(#gold)" stroke-width="1.2" opacity="0.25"/>
+  <line x1="88" y1="234" x2="210" y2="234" stroke="url(#gold)" stroke-width="1.2" opacity="0.25"/>
+  <line x1="88" y1="246" x2="210" y2="246" stroke="url(#gold)" stroke-width="1.2" opacity="0.25"/>
+  <line x1="88" y1="258" x2="210" y2="258" stroke="url(#gold)" stroke-width="1.2" opacity="0.25"/>
+
+  <!-- Chord diagram - right side -->
+  <!-- Fretboard -->
+  <rect x="298" y="148" width="116" height="130" rx="4" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.5"/>
+  <!-- Nut -->
+  <rect x="298" y="148" width="116" height="6" rx="2" fill="url(#gold)" opacity="0.7"/>
+  <!-- Fret lines -->
+  <line x1="298" y1="182" x2="414" y2="182" stroke="url(#gold)" stroke-width="1" opacity="0.4"/>
+  <line x1="298" y1="214" x2="414" y2="214" stroke="url(#gold)" stroke-width="1" opacity="0.4"/>
+  <line x1="298" y1="246" x2="414" y2="246" stroke="url(#gold)" stroke-width="1" opacity="0.4"/>
+  <!-- String lines -->
+  <line x1="321" y1="148" x2="321" y2="278" stroke="url(#gold)" stroke-width="0.8" opacity="0.35"/>
+  <line x1="344" y1="148" x2="344" y2="278" stroke="url(#gold)" stroke-width="0.8" opacity="0.35"/>
+  <line x1="367" y1="148" x2="367" y2="278" stroke="url(#gold)" stroke-width="0.8" opacity="0.35"/>
+  <line x1="390" y1="148" x2="390" y2="278" stroke="url(#gold)" stroke-width="0.8" opacity="0.35"/>
+  <!-- Chord dots -->
+  <circle cx="321" cy="165" r="7" fill="url(#gold)" filter="url(#glow)"/>
+  <circle cx="367" cy="165" r="7" fill="url(#gold)" filter="url(#glow)"/>
+  <circle cx="344" cy="198" r="7" fill="url(#gold)" filter="url(#glow)"/>
+  <circle cx="390" cy="198" r="7" fill="url(#gold)" filter="url(#glow)"/>
+  <circle cx="321" cy="230" r="7" fill="url(#gold)" filter="url(#glow)"/>
+  <circle cx="390" cy="230" r="7" fill="url(#gold)" filter="url(#glow)"/>
+
+  <!-- Center divider ornament -->
+  <line x1="240" y1="148" x2="240" y2="278" stroke="url(#gold)" stroke-width="0.8" opacity="0.2"/>
+  <circle cx="240" cy="213" r="4" fill="url(#gold)" opacity="0.4"/>
+
+  <!-- Main title: CIFRAS -->
+  <text x="256" y="330"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="72"
+    font-weight="bold"
+    letter-spacing="8"
+    text-anchor="middle"
+    fill="url(#gold)"
+    filter="url(#softglow)">CIFRAS</text>
+
+  <!-- Thin line under CIFRAS -->
+  <line x1="96" y1="344" x2="416" y2="344" stroke="url(#gold)" stroke-width="0.8" opacity="0.5"/>
+
+  <!-- Subtitle: SETLIST -->
+  <text x="256" y="382"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28"
+    font-weight="normal"
+    letter-spacing="14"
+    text-anchor="middle"
+    fill="url(#gold2)"
+    opacity="0.85">SETLIST</text>
+
+  <!-- Bottom ornament -->
+  <line x1="120" y1="406" x2="392" y2="406" stroke="url(#gold)" stroke-width="1" opacity="0.5"/>
+  <line x1="100" y1="411" x2="412" y2="411" stroke="url(#gold)" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Bottom diamond -->
+  <polygon points="256,402 263,411 256,422 249,411" fill="url(#gold)" opacity="0.9"/>
+
+  <!-- Corner flourishes -->
+  <path d="M60 80 Q60 60 80 60" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.4"/>
+  <path d="M452 80 Q452 60 432 60" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.4"/>
+  <path d="M60 432 Q60 452 80 452" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.4"/>
+  <path d="M452 432 Q452 452 432 452" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity="0.4"/>
+</svg>
