@@ -1256,8 +1256,13 @@ async function syncToCloud() {
       s.id, s.title, s.artist || '', s.key, s.content,
       setlist.includes(s.id) ? setlist.indexOf(s.id) : ''
     ]);
-    const url = SCRIPT_URL + '?action=save&songs=' + encodeURIComponent(JSON.stringify(rows));
-    const res = await fetch(url);
+    const formData = new FormData();
+    formData.append('action', 'save');
+    formData.append('songs', JSON.stringify(rows));
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData
+    });
     const text = await res.text();
     if (text.includes('OK')) showSyncStatus('✅ Salvo na nuvem!');
     else throw new Error(text);
