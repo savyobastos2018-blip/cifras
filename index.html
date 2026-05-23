@@ -651,9 +651,10 @@ async function syncToCloud(){
   try{
     const rows=songs.map(s=>[s.id,s.title,s.artist||'',s.key,s.content,
       setlist.includes(s.id)?setlist.indexOf(s.id):'',s.category||'']);
-    const saveUrl=SCRIPT_URL+'?action=save&songs='+encodeURIComponent(JSON.stringify(rows));
-    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(saveUrl);
-    await fetch(proxyUrl);
+    const fd=new FormData();
+    fd.append('action','save');
+    fd.append('songs',JSON.stringify(rows));
+    await fetch(SCRIPT_URL,{method:'POST',body:fd,mode:'no-cors'});
     showSync('✅ Salvo!');
   }catch(e){showSync('❌ Erro ao salvar',false);console.error(e)}
   cloudSyncing=false;
@@ -996,7 +997,8 @@ function updateScrollSpeed() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkUrlParams();
-// visibilitychange removed — load only on explicit ☁ button
+// Auto-load from cloud on startup
+loadFromCloud();
 </script>
 
 <!-- AUTOSCROLL BAR -->
@@ -1256,9 +1258,10 @@ async function syncToCloud(){
   try{
     const rows=songs.map(s=>[s.id,s.title,s.artist||'',s.key,s.content,
       setlist.includes(s.id)?setlist.indexOf(s.id):'',s.category||'']);
-    const saveUrl=SCRIPT_URL+'?action=save&songs='+encodeURIComponent(JSON.stringify(rows));
-    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(saveUrl);
-    await fetch(proxyUrl);
+    const fd=new FormData();
+    fd.append('action','save');
+    fd.append('songs',JSON.stringify(rows));
+    await fetch(SCRIPT_URL,{method:'POST',body:fd,mode:'no-cors'});
     showSync('✅ Salvo!');
   }catch(e){showSync('❌ Erro ao salvar',false);console.error(e)}
   cloudSyncing=false;
@@ -1601,7 +1604,8 @@ function updateScrollSpeed() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkUrlParams();
-// visibilitychange removed — load only on explicit ☁ button
+// Auto-load from cloud on startup
+loadFromCloud();
 </script>
 
 <!-- AUTOSCROLL BAR -->
