@@ -338,6 +338,71 @@ nav{
 .login-error{font-size:0.78rem;color:var(--red2);text-align:center;min-height:20px}
 .login-divider{display:flex;align-items:center;gap:12px;color:var(--line);font-size:0.7rem}
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+  /* ─── AUTOSCROLL ─── */
+  .scroll-bar {
+    position: fixed;
+    bottom: calc(var(--nav) + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: rgba(15,14,12,0.92);
+    border: 1px solid var(--line);
+    border-radius: 40px;
+    padding: 8px 16px;
+    z-index: 250;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .scroll-bar.visible { display: flex; }
+  .scroll-play {
+    background: var(--gold);
+    color: var(--bg);
+    border: none;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .scroll-play:hover { background: var(--gold2); }
+  .scroll-speed {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line);
+    outline: none;
+    cursor: pointer;
+  }
+  .scroll-speed::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+  }
+  .scroll-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .scroll-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+
 </style>
 </head>
 <body>
@@ -913,11 +978,86 @@ function checkUrlParams(){
   }
 }
 
+
+// ─── AUTOSCROLL ──────────────────────────────────────────────────────────────
+let scrolling = false;
+let scrollInterval = null;
+let scrollPx = 1.2; // pixels per tick
+
+function showScrollBar() {
+  document.getElementById('scroll-bar').classList.add('visible');
+}
+
+function hideScrollBar() {
+  stopScroll();
+  document.getElementById('scroll-bar').classList.remove('visible');
+}
+
+function toggleScroll() {
+  if (scrolling) stopScroll();
+  else startScroll();
+}
+
+function startScroll() {
+  scrolling = true;
+  document.getElementById('scroll-play-btn').textContent = '⏸';
+  const screen = document.getElementById('screen-cifras');
+  scrollInterval = setInterval(() => {
+    screen.scrollTop += scrollPx;
+    // Stop at bottom
+    if (screen.scrollTop + screen.clientHeight >= screen.scrollHeight - 2) {
+      stopScroll();
+    }
+  }, 30);
+}
+
+function stopScroll() {
+  scrolling = false;
+  document.getElementById('scroll-play-btn').textContent = '▶';
+  clearInterval(scrollInterval);
+}
+
+function updateScrollSpeed() {
+  const val = parseInt(document.getElementById('scroll-speed').value);
+  // Map 1-10 to 0.3-4px per tick
+  scrollPx = 0.3 + (val - 1) * 0.41;
+  if (scrolling) { stopScroll(); startScroll(); }
+}
+
+// Show scroll bar when cifras tab is active and has content
+const _origShowScreen = showScreen;
+function showScreen(name) {
+  _origShowScreen(name);
+  if (name === 'cifras' && setlist.length > 0) {
+    showScrollBar();
+  } else {
+    hideScrollBar();
+  }
+}
+
+// Also show when cifras renders with content
+const _origRenderCifras = renderCifras;
+function renderCifras() {
+  _origRenderCifras();
+  const isCifrasActive = document.getElementById('screen-cifras').classList.contains('active');
+  if (isCifrasActive && setlist.length > 0) showScrollBar();
+  else if (!setlist.length) hideScrollBar();
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkLogin();
 if(sessionStorage.getItem('cifras-logged')==='true')loadFromCloud().finally(()=>checkUrlParams());
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&sessionStorage.getItem('cifras-logged')==='true')loadFromCloud()});
 </script>
+
+<!-- AUTOSCROLL BAR -->
+<div class="scroll-bar" id="scroll-bar">
+  <button class="scroll-play" id="scroll-play-btn" onclick="toggleScroll()">▶</button>
+  <span class="scroll-label">Velocidade</span>
+  <input class="scroll-speed" type="range" id="scroll-speed" min="1" max="10" value="3" oninput="updateScrollSpeed()">
+  <button class="scroll-close" onclick="hideScrollBar()" title="Fechar">✕</button>
+</div>
+
 </body>
 </html>
