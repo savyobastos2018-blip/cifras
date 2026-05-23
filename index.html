@@ -1096,12 +1096,17 @@ function checkUrlParams(){
   const p=new URLSearchParams(window.location.search);
   const title=p.get('title'),artist=p.get('artist'),key=p.get('key'),content=p.get('content');
   if(title&&content){
+    // Hide splash immediately when importing
+    hideSplash();
     document.getElementById('f-title').value=title;
     document.getElementById('f-artist').value=artist||'';
     document.getElementById('f-content').value=content;
     if(key){const sel=document.getElementById('f-key');for(let o of sel.options)if(o.value===key){sel.value=key;break}}
     document.getElementById('modal-title-text').textContent='Cifra Importada';
-    document.getElementById('modal').classList.add('open');
+    // Small delay to ensure modal renders after splash hides
+    setTimeout(()=>{
+      document.getElementById('modal').classList.add('open');
+    }, 300);
     window.history.replaceState({},'',window.location.pathname);
   }
 }
