@@ -584,6 +584,8 @@ const CATEGORIES = [
 ];
 const CREDENTIALS = {'savyobastos2018@gmail.com':'@Savyo0810'};
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyemXA2nPsK9ZE_d5C1BpTKQzX3wq35ZBDIkxGGlwIHSHEmvajKeCcx5tAJ28MH3Alm/exec';
+const SHEET_ID = '1-ZOaKFoaGlnytARIMggzA-FKknOJtStTglX4gfczNKM';
+const API_KEY = 'AIzaSyDh2PfHoJQtDj9fGfyiXeMqPcgcXCfdkq8';
 const SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 const CHORD_RE = /^[A-G](#|b)?(m|maj|min|sus|dim|aug|add)?[0-9]*(\/[A-G](#|b)?)?[+]?$/;
@@ -662,9 +664,11 @@ async function syncToCloud(){
 async function loadFromCloud(){
   showSync('☁️ Carregando…');
   try{
-    const loadUrl = SCRIPT_URL+'?action=load&t='+Date.now();
-    const res = await fetch(loadUrl);
-    const rows = await res.json();
+    // Use Google Sheets API directly - no CORS issues with public sheets
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/P%C3%A1gina1!A1:G1000?key=${API_KEY}&t=${Date.now()}`;
+    const res = await fetch(sheetsUrl);
+    const data = await res.json();
+    const rows = data.values || [];
     if(!rows||!rows.length){showSync('Nuvem vazia.');return}
     songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
     const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
@@ -1251,9 +1255,11 @@ async function syncToCloud(){
 async function loadFromCloud(){
   showSync('☁️ Carregando…');
   try{
-    const loadUrl = SCRIPT_URL+'?action=load&t='+Date.now();
-    const res = await fetch(loadUrl);
-    const rows = await res.json();
+    // Use Google Sheets API directly - no CORS issues with public sheets
+    const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/P%C3%A1gina1!A1:G1000?key=${API_KEY}&t=${Date.now()}`;
+    const res = await fetch(sheetsUrl);
+    const data = await res.json();
+    const rows = data.values || [];
     if(!rows||!rows.length){showSync('Nuvem vazia.');return}
     songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
     const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
