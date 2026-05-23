@@ -970,25 +970,8 @@ function updateScrollSpeed() {
   if (scrolling) { stopScroll(); startScroll(); }
 }
 
-// Show scroll bar when cifras tab is active and has content
-const _origShowScreen = showScreen;
-function showScreen(name) {
-  _origShowScreen(name);
-  if (name === 'cifras' && setlist.length > 0) {
-    showScrollBar();
-  } else {
-    hideScrollBar();
-  }
-}
-
-// Also show when cifras renders with content
-const _origRenderCifras = renderCifras;
-function renderCifras() {
-  _origRenderCifras();
-  const isCifrasActive = document.getElementById('screen-cifras').classList.contains('active');
-  if (isCifrasActive && setlist.length > 0) showScrollBar();
-  else if (!setlist.length) hideScrollBar();
-}
+// Autoscroll: hook into showScreen and renderCifras via direct calls
+// (removed wrapper functions that caused duplicates)
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
@@ -1586,25 +1569,8 @@ function updateScrollSpeed() {
   if (scrolling) { stopScroll(); startScroll(); }
 }
 
-// Show scroll bar when cifras tab is active and has content
-const _origShowScreen = showScreen;
-function showScreen(name) {
-  _origShowScreen(name);
-  if (name === 'cifras' && setlist.length > 0) {
-    showScrollBar();
-  } else {
-    hideScrollBar();
-  }
-}
-
-// Also show when cifras renders with content
-const _origRenderCifras = renderCifras;
-function renderCifras() {
-  _origRenderCifras();
-  const isCifrasActive = document.getElementById('screen-cifras').classList.contains('active');
-  if (isCifrasActive && setlist.length > 0) showScrollBar();
-  else if (!setlist.length) hideScrollBar();
-}
+// Autoscroll: hook into showScreen and renderCifras via direct calls
+// (removed wrapper functions that caused duplicates)
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
