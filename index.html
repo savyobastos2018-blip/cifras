@@ -1093,20 +1093,30 @@ function setImportStatus(msg,type){
 
 // ─── URL PARAMS (bookmarklet) ────────────────────────────────────────────────
 function checkUrlParams(){
+  // Try URL params first, then localStorage (for long cifras)
   const p=new URLSearchParams(window.location.search);
-  const title=p.get('title'),artist=p.get('artist'),key=p.get('key'),content=p.get('content');
+  let title=p.get('title'),artist=p.get('artist'),key=p.get('key'),content=p.get('content');
+
+  // Fallback: read from localStorage (set by bookmarklet for long content)
+  if(!content){
+    const stored=localStorage.getItem('cifras-import');
+    if(stored){
+      try{
+        const d=JSON.parse(stored);
+        title=d.title;artist=d.artist;key=d.key;content=d.content;
+        localStorage.removeItem('cifras-import');
+      }catch(e){}
+    }
+  }
+
   if(title&&content){
-    // Hide splash immediately when importing
     hideSplash();
     document.getElementById('f-title').value=title;
     document.getElementById('f-artist').value=artist||'';
     document.getElementById('f-content').value=content;
     if(key){const sel=document.getElementById('f-key');for(let o of sel.options)if(o.value===key){sel.value=key;break}}
     document.getElementById('modal-title-text').textContent='Cifra Importada';
-    // Small delay to ensure modal renders after splash hides
-    setTimeout(()=>{
-      document.getElementById('modal').classList.add('open');
-    }, 300);
+    setTimeout(()=>{ document.getElementById('modal').classList.add('open'); }, 400);
     window.history.replaceState({},'',window.location.pathname);
   }
 }
