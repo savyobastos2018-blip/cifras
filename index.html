@@ -793,7 +793,7 @@ function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTim
 
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
 function checkLogin(){
-  if(sessionStorage.getItem('cifras-logged')==='true')
+  if(localStorage.getItem('cifras-logged')==='true')
     hideLoginScreen();
 }
 function hideLoginScreen(){
@@ -808,13 +808,13 @@ function doLogin(){
   const err=document.getElementById('login-error');
   if(!user||!pass){err.textContent='Preencha usuário e senha.';return}
   if(CREDENTIALS[user]&&CREDENTIALS[user]===pass){
-    sessionStorage.setItem('cifras-logged','true');
+    localStorage.setItem('cifras-logged','true');
     hideLoginScreen();
     loadFromCloud();err.textContent='';
   }else{err.textContent='Usuário ou senha incorretos.';document.getElementById('login-pass').value=''}
 }
 function doLogout(){
-  sessionStorage.removeItem('cifras-logged');
+  localStorage.removeItem('cifras-logged');
   const ls = document.getElementById('login-screen');
   ls.style.display='flex';
   ls.style.pointerEvents='auto';
@@ -1211,8 +1211,8 @@ function renderCifras() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkLogin();
-if(sessionStorage.getItem('cifras-logged')==='true')loadFromCloud().finally(()=>checkUrlParams());
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&sessionStorage.getItem('cifras-logged')==='true')loadFromCloud()});
+if(localStorage.getItem('cifras-logged')==='true')loadFromCloud().finally(()=>checkUrlParams());
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&localStorage.getItem('cifras-logged')==='true')loadFromCloud()});
 </script>
 
 <!-- AUTOSCROLL BAR -->
