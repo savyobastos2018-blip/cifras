@@ -393,7 +393,7 @@ nav{
 <body>
 
 <!-- LOGIN -->
-<div class="login-screen" id="login-screen">
+<div class="login-screen" id="login-screen" onclick="hideSplash()" style="cursor:pointer">
   <!-- Background doodle SVG -->
   <div class="login-bg" aria-hidden="true">
   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
@@ -1156,12 +1156,18 @@ function renderCifras() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkUrlParams();
-// Hide splash after 1.2s, with 2s failsafe
-setTimeout(hideSplash, 1200);
+// Hide splash immediately when page is fully loaded
+window.addEventListener('load', () => setTimeout(hideSplash, 800));
+// Failsafes
+setTimeout(hideSplash, 1000);
 setTimeout(()=>{
   const el=document.getElementById('login-screen');
-  if(el){ el.style.display='none'; el.style.pointerEvents='none'; }
-}, 2500);
+  if(el && el.style.display !== 'none'){
+    el.style.display='none';
+    el.style.pointerEvents='none';
+    el.style.visibility='hidden';
+  }
+}, 2000);
 // visibilitychange removed — load only on explicit ☁ button
 </script>
 
