@@ -1092,24 +1092,14 @@ function setImportStatus(msg,type){
 }
 
 // ─── URL PARAMS (bookmarklet) ────────────────────────────────────────────────
+let _importDone = false;
 function checkUrlParams(){
-  // Try URL params first, then localStorage (for long cifras)
+  if(_importDone) return;
   const p=new URLSearchParams(window.location.search);
   let title=p.get('title'),artist=p.get('artist'),key=p.get('key'),content=p.get('content');
 
-  // Fallback: read from localStorage (set by bookmarklet for long content)
-  if(!content){
-    const stored=localStorage.getItem('cifras-import');
-    if(stored){
-      try{
-        const d=JSON.parse(stored);
-        title=d.title;artist=d.artist;key=d.key;content=d.content;
-        localStorage.removeItem('cifras-import');
-      }catch(e){}
-    }
-  }
-
   if(title&&content){
+    _importDone = true;
     hideSplash();
     document.getElementById('f-title').value=title;
     document.getElementById('f-artist').value=artist||'';
@@ -1189,9 +1179,11 @@ function renderCifras() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
-// Run checkUrlParams both immediately and after splash (in case modal was blocked)
+// Check URL params immediately AND after splash finishes
 checkUrlParams();
-setTimeout(checkUrlParams, 3400);
+setTimeout(checkUrlParams, 500);
+setTimeout(checkUrlParams, 1500);
+setTimeout(checkUrlParams, 3500);
 // Remove splash from DOM after CSS animation completes
 setTimeout(()=>{
   const el=document.getElementById('login-screen');
