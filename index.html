@@ -317,28 +317,7 @@ nav{
 .import-status{font-size:0.78rem;min-height:20px;padding:0 2px}
 
 /* ─── LOGIN ─── */
-@keyframes splashOut {
-  0%   { opacity:1; pointer-events:auto; }
-  75%  { opacity:1; pointer-events:none; }
-  100% { opacity:0; pointer-events:none; }
-}
-@keyframes logoGrow {
-  0%   { transform: scale(0.3); opacity:0; }
-  40%  { transform: scale(1.08); opacity:1; }
-  60%  { transform: scale(1.0); opacity:1; }
-  80%  { transform: scale(1.0); opacity:1; }
-  95%  { transform: scale(0.15); opacity:0.6; }
-  100% { transform: scale(0); opacity:0; }
-}
-.login-screen{
-  position:fixed;inset:0;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:999;
-  animation: splashOut 0.4s ease 2.8s forwards;
-}
-.splash-logo {
-  animation: logoGrow 3s cubic-bezier(0.4,0,0.2,1) forwards;
-}
+
 
   /* ─── AUTOSCROLL ─── */
   .scroll-bar {
@@ -779,16 +758,8 @@ function save(){localStorage.setItem('cifras-songs',JSON.stringify(songs));local
 function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTimeout(syncToCloud,1500)}
 
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
-function hideSplash(){
-  const el=document.getElementById('login-screen');
-  if(!el) return;
-  el.style.transition='opacity 0.5s ease';
-  el.style.opacity='0';
-  el.style.pointerEvents='none';
-  setTimeout(()=>{ el.style.display='none'; }, 550);
-}
-// aliases kept for compatibility
-function checkLogin(){ hideSplash(); }
+function hideSplash(){}
+function checkLogin(){}
 function doLogout(){}
 
 
@@ -1179,16 +1150,625 @@ function renderCifras() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
-// Check URL params immediately AND after splash finishes
 checkUrlParams();
-setTimeout(checkUrlParams, 500);
-setTimeout(checkUrlParams, 1500);
-setTimeout(checkUrlParams, 3500);
-// Remove splash from DOM after CSS animation completes
-setTimeout(()=>{
-  const el=document.getElementById('login-screen');
-  if(el){ el.style.display='none'; }
-}, 3300);
+// visibilitychange removed — load only on explicit ☁ button
+</script>
+
+<!-- AUTOSCROLL BAR -->
+<div class="scroll-bar" id="scroll-bar">
+  <button class="scroll-play" id="scroll-play-btn" onclick="toggleScroll()">▶</button>
+  <span class="scroll-label">Velocidade</span>
+  <input class="scroll-speed" type="range" id="scroll-speed" min="1" max="10" value="3" oninput="updateScrollSpeed()">
+  <button class="scroll-close" onclick="hideScrollBar()" title="Fechar">✕</button>
+</div>
+
+</body>
+</html><!-- HEADER -->
+<header>
+  <div class="hdr-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="logo-icon.png" alt="" style="height:42px;width:42px;object-fit:contain;display:block;flex-shrink:0;">
+    <div style="display:flex;flex-direction:column;line-height:1.05;">
+      <span style="font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;color:#fff;letter-spacing:-0.3px;">Cifras</span>
+      <span style="font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;color:#F47B20;letter-spacing:-0.3px;">Setlist</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-sync" id="sync-status"></span>
+    <button class="hdr-btn-ghost" onclick="loadFromCloud()" title="Sincronizar">☁</button>
+    <button class="hdr-btn" onclick="openModal()">+ Música</button>
+  </div>
+</header>
+
+<!-- SCREEN: MÚSICAS -->
+<div class="screen screen-dark active" id="screen-musicas">
+  <div class="search-wrap">
+    <input class="search-box" type="text" id="search-input" placeholder="Buscar por título ou artista…" oninput="renderSongs(this.value)">
+  </div>
+  <div class="cat-scroll" id="cat-scroll"></div>
+  <div class="songs-list" id="songs-list"></div>
+</div>
+
+<!-- SCREEN: SETLIST -->
+<div class="screen" id="screen-setlist" style="background:var(--bg)">
+  <div class="setlist-hdr">
+    <span class="setlist-hdr-label">Ordem do Culto</span>
+    <button class="btn-clear" onclick="clearSetlist()">Limpar</button>
+  </div>
+  <div class="setlist-list" id="setlist-list"></div>
+</div>
+
+<!-- SCREEN: CIFRAS -->
+<div class="screen" id="screen-cifras">
+  <div class="cifras-wrap" id="cifras-content"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="nav-tab active" onclick="showScreen('musicas')" id="tab-musicas">
+    <span class="icon">♪</span>Músicas
+  </button>
+  <button class="nav-tab" onclick="showScreen('setlist')" id="tab-setlist">
+    <span class="icon">☰</span>Setlist
+  </button>
+  <button class="nav-tab" onclick="showScreen('cifras')" id="tab-cifras">
+    <span class="icon">♬</span>Cifras
+  </button>
+</nav>
+
+<!-- MODAL: MÚSICA -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-title-text">Nova Música</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Título</label>
+        <input class="form-input" type="text" id="f-title" placeholder="Nome da música">
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Tom</label>
+          <select class="form-select" id="f-key">
+            <option>C</option><option>C#</option><option>Db</option>
+            <option>D</option><option>D#</option><option>Eb</option>
+            <option>E</option><option>F</option><option>F#</option>
+            <option>Gb</option><option>G</option><option>G#</option>
+            <option>Ab</option><option>A</option><option>A#</option>
+            <option>Bb</option><option>B</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:2">
+          <label class="form-label">Categoria</label>
+          <select class="form-select" id="f-category">
+            <option value="">Sem categoria</option>
+            <option>Refrãos Contemplativos</option>
+            <option>Acolhida</option>
+            <option>Perdão</option>
+            <option>Glória</option>
+            <option>Acolhida da Palavra</option>
+            <option>Aclamação</option>
+            <option>Oferendas</option>
+            <option>Santo</option>
+            <option>Paz</option>
+            <option>Cordeiro</option>
+            <option>Comunhão</option>
+            <option>Envio</option>
+            <option>Semana Santa</option>
+            <option>Festas Litúrgicas</option>
+            <option>Cantos Penitenciais</option>
+            <option>Celebrações Diversas</option>
+            <option>Diversos</option>
+            <option>Família</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Artista / Ministério</label>
+        <input class="form-input" type="text" id="f-artist" placeholder="ex: Padre Zezinho">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cifra</label>
+        <textarea class="form-textarea" id="f-content" placeholder="Cole a cifra aqui.&#10;&#10;Use [Verso], [Refrão], [Ponte] para seções.&#10;Acordes ficam na linha acima das letras."></textarea>
+        <div class="form-hint">Use <strong>[Seção]</strong> para marcar partes. Acordes acima das letras.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveSong()">Salvar Música</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: IMPORTAR -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title">Importar pelo Link</div>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Link do Cifra Club</label>
+        <input class="form-input" type="text" id="import-url" placeholder="https://www.cifraclub.com.br/...">
+        <div class="form-hint">Cole o link de qualquer música do Cifra Club.</div>
+      </div>
+      <div class="import-status" id="import-status"></div>
+      <div id="import-preview" style="display:none">
+        <div style="border-top:1px solid var(--line);margin:4px 0 8px"></div>
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input class="form-input" type="text" id="import-title">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Artista</label>
+          <input class="form-input" type="text" id="import-artist">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select class="form-select" id="import-category">
+            <option value="">Sem categoria</option>
+            <option>Refrãos Contemplativos</option><option>Acolhida</option>
+            <option>Perdão</option><option>Glória</option>
+            <option>Acolhida da Palavra</option><option>Aclamação</option>
+            <option>Oferendas</option><option>Santo</option>
+            <option>Paz</option><option>Cordeiro</option>
+            <option>Comunhão</option><option>Envio</option>
+            <option>Semana Santa</option><option>Festas Litúrgicas</option>
+            <option>Cantos Penitenciais</option><option>Celebrações Diversas</option>
+            <option>Diversos</option><option>Família</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tom</label>
+          <select class="form-select" id="import-key">
+            <option>C</option><option>C#</option><option>Db</option>
+            <option>D</option><option>D#</option><option>Eb</option>
+            <option>E</option><option>F</option><option>F#</option>
+            <option>Gb</option><option>G</option><option>G#</option>
+            <option>Ab</option><option>A</option><option>A#</option>
+            <option>Bb</option><option>B</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cifra (revise)</label>
+          <textarea class="form-textarea" id="import-content" style="min-height:160px"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="import-footer">
+      <button class="btn-cancel" onclick="closeImportModal()">Cancelar</button>
+      <button class="btn-save" id="import-btn" onclick="doImport()">Buscar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONSTANTS ─────────────────────────────────────────────────────────────
+const CATEGORIES = [
+  'Refrãos Contemplativos','Acolhida','Perdão','Glória',
+  'Acolhida da Palavra','Aclamação','Oferendas','Santo',
+  'Paz','Cordeiro','Comunhão','Envio','Semana Santa',
+  'Festas Litúrgicas','Cantos Penitenciais','Celebrações Diversas',
+  'Diversos','Família'
+];
+const CREDENTIALS = {'savyobastos2018@gmail.com':'@Savyo0810'};
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyemXA2nPsK9ZE_d5C1BpTKQzX3wq35ZBDIkxGGlwIHSHEmvajKeCcx5tAJ28MH3Alm/exec';
+const SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const CHORD_RE = /^[A-G](#|b)?(m|maj|min|sus|dim|aug|add)?[0-9]*(\/[A-G](#|b)?)?[+]?$/;
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let songs   = JSON.parse(localStorage.getItem('cifras-songs')   || '[]');
+let setlist = JSON.parse(localStorage.getItem('cifras-setlist') || '[]');
+let editingId = null;
+let activeCategory = '';
+let tState = {};
+let sortable = null;
+let cloudSyncing = false;
+window._syncTimer = null;
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function save(){localStorage.setItem('cifras-songs',JSON.stringify(songs));localStorage.setItem('cifras-setlist',JSON.stringify(setlist))}
+function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTimeout(syncToCloud,1500)}
+
+// ─── LOGIN ──────────────────────────────────────────────────────────────────
+function hideSplash(){}
+function checkLogin(){}
+function doLogout(){}
+
+
+// ─── TRANSPOSE ──────────────────────────────────────────────────────────────
+function noteIdx(n){let i=SHARP.indexOf(n);return i===-1?FLAT.indexOf(n):i}
+function transposeChord(chord,semis){
+  return chord.replace(/[A-G](#|b)?/g,m=>{
+    const i=noteIdx(m);if(i===-1)return m;
+    const ni=((i+semis)%12+12)%12;
+    return(m.includes('b')||FLAT.includes(m))?FLAT[ni]:SHARP[ni];
+  });
+}
+function transposeContent(content,semis){
+  if(!semis)return content;
+  return content.split('\n').map(line=>{
+    const tokens=line.trim().split(/\s+/).filter(Boolean);
+    const cl=tokens.filter(t=>CHORD_RE.test(t.replace(/\.+$/,'')));
+    if(!tokens.length||cl.length/tokens.length<0.5)return line;
+    return line.replace(/[A-G](#|b)?(m|maj|min|sus|dim|aug|add)?[0-9]*(\/[A-G](#|b)?)?[+]?/g,c=>{
+      const root=c.match(/^[A-G](#|b)?/);if(!root)return c;
+      return transposeChord(root[0],semis)+c.slice(root[0].length);
+    });
+  }).join('\n');
+}
+function currentKey(song){
+  const off=tState[song.id]||0;const i=noteIdx(song.key);if(i===-1)return song.key;
+  return SHARP[((i+off)%12+12)%12];
+}
+
+// ─── SCREENS ────────────────────────────────────────────────────────────────
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ─── SYNC STATUS ────────────────────────────────────────────────────────────
+function showSync(msg,ok=true){
+  const el=document.getElementById('sync-status');
+  el.textContent=msg;
+  el.style.color=ok?'#4a9':'#c47';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.textContent='',4000);
+}
+
+// ─── CLOUD ──────────────────────────────────────────────────────────────────
+async function syncToCloud(){
+  if(cloudSyncing)return;cloudSyncing=true;showSync('☁️ Salvando…');
+  try{
+    const rows=songs.map(s=>[s.id,s.title,s.artist||'',s.key,s.content,
+      setlist.includes(s.id)?setlist.indexOf(s.id):'',s.category||'']);
+    const fd=new FormData();fd.append('action','save');fd.append('songs',JSON.stringify(rows));
+    await fetch(SCRIPT_URL,{method:'POST',body:fd,mode:'no-cors'});
+    showSync('✅ Salvo!');
+  }catch(e){showSync('❌ Erro ao salvar',false);console.error(e)}
+  cloudSyncing=false;
+}
+async function loadFromCloud(){
+  showSync('☁️ Carregando…');
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=load&t='+Date.now());
+    const rows=await res.json();
+    if(!rows||!rows.length){showSync('Nuvem vazia.');return}
+    songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
+    const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
+    setlist=Object.keys(sm).sort((a,b)=>a-b).map(k=>sm[k]);
+    save();renderAll();showSync('✅ Carregado!');
+  }catch(e){showSync('');console.warn('Cloud load skipped:',e.message)}  // silent fail
+}
+
+// ─── RENDER ALL ─────────────────────────────────────────────────────────────
+function renderAll(){
+  renderCatFilter();
+  renderSongs(document.getElementById('search-input').value);
+  renderSetlist();
+  renderCifras();
+}
+
+// ─── CATEGORY FILTER ────────────────────────────────────────────────────────
+function renderCatFilter(){
+  const el=document.getElementById('cat-scroll');
+  el.innerHTML=`<button class="cat-pill ${activeCategory===''?'active':''}" onclick="setCategory('')">Todas</button>`
+    +CATEGORIES.map(c=>`<button class="cat-pill ${activeCategory===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('');
+}
+function setCategory(cat){
+  activeCategory=cat;renderCatFilter();
+  renderSongs(document.getElementById('search-input').value);
+}
+
+// ─── RENDER: MÚSICAS ────────────────────────────────────────────────────────
+function renderSongs(q=''){
+  const el=document.getElementById('songs-list');
+  const list=songs.filter(s=>{
+    const mq=s.title.toLowerCase().includes(q.toLowerCase())||(s.artist||'').toLowerCase().includes(q.toLowerCase());
+    const mc=!activeCategory||s.category===activeCategory;
+    return mq&&mc;
+  });
+  if(!list.length){el.innerHTML=`<div class="no-results">Nenhuma música encontrada.</div>`;return}
+  el.innerHTML=list.map(s=>`
+    <div class="song-card">
+      ${s.category?`<div class="song-card-cat">${s.category}</div>`:''}
+      <div class="song-card-top">
+        <div class="song-card-title">${s.title}</div>
+        <div class="song-card-key">${s.key}</div>
+      </div>
+      <div class="song-card-artist">${s.artist||'—'}</div>
+      <div class="song-card-actions">
+        <button class="btn-setlist" onclick="addToSetlist('${s.id}')">+ Setlist</button>
+        <button class="btn-edit" onclick="editSong('${s.id}')">Editar</button>
+        <button class="btn-del" onclick="deleteSong('${s.id}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── RENDER: SETLIST ────────────────────────────────────────────────────────
+function renderSetlist(){
+  const el=document.getElementById('setlist-list');
+  if(!setlist.length){
+    el.innerHTML=`<div class="setlist-empty">Nenhuma música no setlist.<br><br>Vá em <strong>Músicas</strong> e toque em <strong>+ Setlist</strong>.</div>`;
+    if(sortable){sortable.destroy();sortable=null}return;
+  }
+  el.innerHTML=setlist.map((id,i)=>{
+    const s=songs.find(x=>x.id===id);if(!s)return'';
+    return`<div class="setlist-item" data-id="${id}">
+      <span class="drag-handle">⠿</span>
+      <span class="sl-num">${i+1}</span>
+      <div class="sl-info">
+        <div class="sl-title">${s.title}</div>
+        <div class="sl-meta">Tom: ${currentKey(s)}${s.category?' · '+s.category:''}</div>
+      </div>
+      <button class="sl-remove" onclick="removeById('${id}')">✕</button>
+    </div>`;
+  }).join('');
+  if(sortable)sortable.destroy();
+  sortable=Sortable.create(el,{handle:'.drag-handle',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen',onEnd(e){
+    const m=setlist.splice(e.oldIndex,1)[0];setlist.splice(e.newIndex,0,m);
+    save();renderSetlist();renderCifras();scheduleSync();
+  }});
+}
+
+// ─── RENDER: CIFRAS ─────────────────────────────────────────────────────────
+function renderCifras(){
+  const wrap=document.getElementById('cifras-content');
+  if(!setlist.length){
+    wrap.innerHTML=`<div class="cifras-welcome"><div class="cifras-welcome-icon">♬</div><p>Monte o setlist e as cifras aparecerão aqui em sequência, sem interrupção.</p></div>`;
+    return;
+  }
+  wrap.innerHTML=setlist.map((id,i)=>{
+    const s=songs.find(x=>x.id===id);if(!s)return'';
+    const off=tState[id]||0;const key=currentKey(s);
+    const content=transposeContent(s.content,off);
+    return`<div class="song-block" id="block-${id}">
+      <div class="song-block-hdr">
+        <div class="song-block-num">Música ${String(i+1).padStart(2,'0')}${s.category?' · '+s.category:''}</div>
+        <div class="song-block-title">${s.title}</div>
+        <div class="song-block-meta">${s.artist||''}${s.key?' · Tom original: '+s.key:''}</div>
+        <div class="transpose-row">
+          <span class="t-label">Tom</span>
+          <button class="t-btn" onclick="transpose('${id}',-1)">−</button>
+          <span class="t-key">${key}</span>
+          <button class="t-btn" onclick="transpose('${id}',+1)">+</button>
+        </div>
+      </div>
+      <div class="song-content">${parseCifra(content)}</div>
+      ${i<setlist.length-1?'<hr class="song-separator">':''}
+    </div>`;
+  }).join('');
+}
+
+// ─── PARSE CIFRA ────────────────────────────────────────────────────────────
+function isChordLine(line){
+  const tokens=line.trim().split(/\s+/).filter(Boolean);
+  if(!tokens.length)return false;
+  const cl=tokens.filter(t=>CHORD_RE.test(t.replace(/\.+$/,'')));
+  return cl.length/tokens.length>=0.5;
+}
+function colorizeChords(line){
+  return line.replace(/\b([A-G](#|b)?(m|maj|min|sus|dim|aug|add)?[0-9]*(\/[A-G](#|b)?)?[+]?)\b/g,m=>{
+    if(!CHORD_RE.test(m.replace(/\.+$/,'')))return m;
+    return`<span class="chord">${m}</span>`;
+  });
+}
+function parseCifra(content){
+  let html='<div class="cifra-pre">';
+  content.split('\n').forEach(line=>{
+    const tr=line.trim();
+    if(/^\[.+\]$/.test(tr)){
+      html+=`</div><span class="section-label">${tr.replace(/[\[\]]/g,'')}</span><div class="cifra-pre">`;
+    }else if(!tr){html+='\n'}
+    else if(isChordLine(line)){html+=`<span class="chord-line">${colorizeChords(line)}\n</span>`}
+    else{html+=`<span class="lyric-line">${line}\n</span>`}
+  });
+  return html+'</div>';
+}
+
+// ─── ACTIONS ────────────────────────────────────────────────────────────────
+function addToSetlist(id){setlist.push(id);save();renderSetlist();renderCifras();showScreen('setlist');scheduleSync()}
+function removeById(id){setlist=setlist.filter(x=>x!==id);save();renderSetlist();renderCifras();scheduleSync()}
+function clearSetlist(){if(!confirm('Limpar o setlist?'))return;setlist=[];save();renderSetlist();renderCifras();scheduleSync()}
+function transpose(id,d){tState[id]=(tState[id]||0)+d;renderSetlist();renderCifras();document.getElementById(`block-${id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function deleteSong(id){
+  if(!confirm('Apagar esta música?'))return;
+  songs=songs.filter(s=>s.id!==id);setlist=setlist.filter(i=>i!==id);
+  save();renderAll();scheduleSync();
+}
+
+// ─── MODAL: SONG ────────────────────────────────────────────────────────────
+function openModal(id=null){
+  editingId=id;const s=id?songs.find(x=>x.id===id):null;
+  document.getElementById('modal-title-text').textContent=s?'Editar Música':'Nova Música';
+  document.getElementById('f-title').value=s?.title||'';
+  document.getElementById('f-key').value=s?.key||'G';
+  document.getElementById('f-category').value=s?.category||'';
+  document.getElementById('f-artist').value=s?.artist||'';
+  document.getElementById('f-content').value=s?.content||'';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');editingId=null}
+function saveSong(){
+  const title=document.getElementById('f-title').value.trim();
+  const key=document.getElementById('f-key').value;
+  const category=document.getElementById('f-category').value;
+  const artist=document.getElementById('f-artist').value.trim();
+  const content=document.getElementById('f-content').value.trim();
+  if(!title){alert('Informe o título.');return}
+  if(!content){alert('Informe a cifra.');return}
+  if(editingId){const s=songs.find(x=>x.id===editingId);if(s){s.title=title;s.key=key;s.category=category;s.artist=artist;s.content=content}}
+  else songs.push({id:uid(),title,key,category,artist,content});
+  save();closeModal();renderAll();scheduleSync();
+}
+function editSong(id){openModal(id)}
+
+// ─── MODAL: IMPORT ──────────────────────────────────────────────────────────
+function openImportModal(){
+  document.getElementById('import-url').value='';
+  document.getElementById('import-status').textContent='';
+  document.getElementById('import-preview').style.display='none';
+  document.getElementById('import-btn').textContent='Buscar';
+  document.getElementById('import-btn').onclick=doImport;
+  document.getElementById('import-modal').classList.add('open');
+}
+function closeImportModal(){document.getElementById('import-modal').classList.remove('open')}
+async function doImport(){
+  let url=document.getElementById('import-url').value.trim();
+  if(!url){setImportStatus('Cole um link do Cifra Club.','warn');return}
+  if(!url.startsWith('http'))url='https://'+url;
+  if(!url.includes('cifraclub.com.br')){setImportStatus('⚠️ Só funciona com links do Cifra Club.','warn');return}
+  setImportStatus('⏳ Buscando cifra…','info');
+  document.getElementById('import-btn').textContent='Buscando…';
+  document.getElementById('import-preview').style.display='none';
+  try{
+    const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
+    const res=await fetch(proxy);if(!res.ok)throw new Error('Erro na requisição');
+    const data=await res.json();const raw=data.contents;if(!raw)throw new Error('Sem conteúdo');
+    const parsed=parseCifraClub(raw);if(!parsed)throw new Error('Não consegui extrair a cifra.');
+    document.getElementById('import-title').value=parsed.title;
+    document.getElementById('import-artist').value=parsed.artist;
+    document.getElementById('import-content').value=parsed.content;
+    document.getElementById('import-preview').style.display='block';
+    document.getElementById('import-btn').textContent='Salvar Música';
+    document.getElementById('import-btn').onclick=saveImport;
+    setImportStatus('✅ Cifra encontrada! Revise e salve.','ok');
+  }catch(e){
+    setImportStatus('❌ '+(e.message||'Não foi possível importar.'),'err');
+    document.getElementById('import-btn').textContent='Tentar novamente';
+    document.getElementById('import-btn').onclick=doImport;
+  }
+}
+function parseCifraClub(html){
+  const parser=new DOMParser();const doc=parser.parseFromString(html,'text/html');
+  const titleEl=doc.querySelector('h1.t1')||doc.querySelector('h1');
+  const title=titleEl?titleEl.textContent.trim():'';
+  const artistEl=doc.querySelector('h2.t3 a')||doc.querySelector('h2 a');
+  const artist=artistEl?artistEl.textContent.trim():'';
+  const pre=doc.querySelector('pre.cifra')||doc.querySelector('.cifra')||doc.querySelector('pre');
+  if(!pre)return null;
+  let content=pre.innerHTML
+    .replace(/<a[^>]*>.*?<\/a>/gi,'')
+    .replace(/<b>/gi,'').replace(/<\/b>/gi,'')
+    .replace(/<span[^>]*>/gi,'').replace(/<\/span>/gi,'')
+    .replace(/<br\s*\/?>/gi,'\n')
+    .replace(/<[^>]+>/g,'')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ');
+  const txt=doc.createElement('textarea');txt.innerHTML=content;content=txt.value;
+  if(!title&&!content)return null;
+  return{title:title||'Sem título',artist:artist||'',content:content.trim()};
+}
+function saveImport(){
+  const title=document.getElementById('import-title').value.trim();
+  const artist=document.getElementById('import-artist').value.trim();
+  const category=document.getElementById('import-category').value;
+  const key=document.getElementById('import-key').value;
+  const content=document.getElementById('import-content').value.trim();
+  if(!title||!content){setImportStatus('Preencha título e cifra.','warn');return}
+  songs.push({id:uid(),title,key,category,artist,content});
+  save();closeImportModal();renderAll();scheduleSync();
+}
+function setImportStatus(msg,type){
+  const el=document.getElementById('import-status');el.textContent=msg;
+  el.style.color=type==='ok'?'#4a9':type==='err'?'#c47':type==='warn'?'#c8860a':'var(--muted)';
+}
+
+// ─── URL PARAMS (bookmarklet) ────────────────────────────────────────────────
+let _importDone = false;
+function checkUrlParams(){
+  if(_importDone) return;
+  const p=new URLSearchParams(window.location.search);
+  let title=p.get('title'),artist=p.get('artist'),key=p.get('key'),content=p.get('content');
+
+  if(title&&content){
+    _importDone = true;
+    hideSplash();
+    document.getElementById('f-title').value=title;
+    document.getElementById('f-artist').value=artist||'';
+    document.getElementById('f-content').value=content;
+    if(key){const sel=document.getElementById('f-key');for(let o of sel.options)if(o.value===key){sel.value=key;break}}
+    document.getElementById('modal-title-text').textContent='Cifra Importada';
+    setTimeout(()=>{ document.getElementById('modal').classList.add('open'); }, 400);
+    window.history.replaceState({},'',window.location.pathname);
+  }
+}
+
+
+// ─── AUTOSCROLL ──────────────────────────────────────────────────────────────
+let scrolling = false;
+let scrollInterval = null;
+let scrollPx = 1.2; // pixels per tick
+
+function showScrollBar() {
+  document.getElementById('scroll-bar').classList.add('visible');
+}
+
+function hideScrollBar() {
+  stopScroll();
+  document.getElementById('scroll-bar').classList.remove('visible');
+}
+
+function toggleScroll() {
+  if (scrolling) stopScroll();
+  else startScroll();
+}
+
+function startScroll() {
+  scrolling = true;
+  document.getElementById('scroll-play-btn').textContent = '⏸';
+  const screen = document.getElementById('screen-cifras');
+  scrollInterval = setInterval(() => {
+    screen.scrollTop += scrollPx;
+    // Stop at bottom
+    if (screen.scrollTop + screen.clientHeight >= screen.scrollHeight - 2) {
+      stopScroll();
+    }
+  }, 30);
+}
+
+function stopScroll() {
+  scrolling = false;
+  document.getElementById('scroll-play-btn').textContent = '▶';
+  clearInterval(scrollInterval);
+}
+
+function updateScrollSpeed() {
+  const val = parseInt(document.getElementById('scroll-speed').value);
+  // Map 1-10 to 0.3-4px per tick
+  scrollPx = 0.3 + (val - 1) * 0.41;
+  if (scrolling) { stopScroll(); startScroll(); }
+}
+
+// Show scroll bar when cifras tab is active and has content
+const _origShowScreen = showScreen;
+function showScreen(name) {
+  _origShowScreen(name);
+  if (name === 'cifras' && setlist.length > 0) {
+    showScrollBar();
+  } else {
+    hideScrollBar();
+  }
+}
+
+// Also show when cifras renders with content
+const _origRenderCifras = renderCifras;
+function renderCifras() {
+  _origRenderCifras();
+  const isCifrasActive = document.getElementById('screen-cifras').classList.contains('active');
+  if (isCifrasActive && setlist.length > 0) showScrollBar();
+  else if (!setlist.length) hideScrollBar();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderAll();
+checkUrlParams();
 // visibilitychange removed — load only on explicit ☁ button
 </script>
 
