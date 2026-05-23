@@ -320,6 +320,42 @@ nav{
 /* ─── LOGIN ─── */
 
 
+
+  /* ─── FONT SIZE CONTROL ─── */
+  .font-ctrl {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15,14,12,0.92);
+    border: 1px solid var(--line);
+    border-radius: 40px;
+    padding: 7px 14px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .font-ctrl.visible { display: flex; }
+  .font-btn {
+    background: var(--bg3);
+    border: 1px solid var(--line);
+    color: var(--text);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .font-btn:active { background: var(--orange); border-color: var(--orange); }
+  .font-size-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    min-width: 36px;
+    text-align: center;
+  }
+
   /* ─── AUTOSCROLL ─── */
   .scroll-bar {
     position: fixed;
@@ -990,17 +1026,46 @@ function updateScrollSpeed() {
 // Autoscroll: hook into showScreen and renderCifras via direct calls
 // (removed wrapper functions that caused duplicates)
 
+
+// ─── FONT SIZE CONTROL ────────────────────────────────────────────────────────
+let fontSize = parseInt(localStorage.getItem('cifras-fontsize') || '100');
+
+function applyFontSize() {
+  const scale = fontSize / 100;
+  const base = 0.8 * scale;
+  document.querySelectorAll('.cifra-pre, .chord-line, .lyric-line, .song-content').forEach(el => {
+    el.style.fontSize = base + 'rem';
+  });
+  const label = document.getElementById('font-size-label');
+  if (label) label.textContent = fontSize + '%';
+  localStorage.setItem('cifras-fontsize', fontSize);
+}
+
+function changeFontSize(delta) {
+  fontSize = Math.min(160, Math.max(60, fontSize + delta * 10));
+  applyFontSize();
+  // Re-apply after render
+  setTimeout(applyFontSize, 100);
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
+applyFontSize();
 checkUrlParams();
 // Auto-load from cloud on startup
 loadFromCloud();
 </script>
 
-<!-- AUTOSCROLL BAR -->
-<div class="scroll-bar" id="scroll-bar">
+<!-- AUTOSCROLL + FONT BAR -->
+<div class="scroll-bar" id="scroll-bar" style="gap:12px;">
+  <div class="font-ctrl visible" id="font-ctrl">
+    <button class="font-btn" onclick="changeFontSize(-1)" title="Diminuir fonte">A−</button>
+    <span class="font-size-label" id="font-size-label">100%</span>
+    <button class="font-btn" onclick="changeFontSize(+1)" title="Aumentar fonte">A+</button>
+  </div>
+  <div style="width:1px;height:24px;background:var(--line)"></div>
   <button class="scroll-play" id="scroll-play-btn" onclick="toggleScroll()">▶</button>
-  <span class="scroll-label">Velocidade</span>
+  <span class="scroll-label">Vel.</span>
   <input class="scroll-speed" type="range" id="scroll-speed" min="1" max="10" value="3" oninput="updateScrollSpeed()">
   <button class="scroll-close" onclick="hideScrollBar()" title="Fechar">✕</button>
 </div>
@@ -1582,17 +1647,46 @@ function updateScrollSpeed() {
 // Autoscroll: hook into showScreen and renderCifras via direct calls
 // (removed wrapper functions that caused duplicates)
 
+
+// ─── FONT SIZE CONTROL ────────────────────────────────────────────────────────
+let fontSize = parseInt(localStorage.getItem('cifras-fontsize') || '100');
+
+function applyFontSize() {
+  const scale = fontSize / 100;
+  const base = 0.8 * scale;
+  document.querySelectorAll('.cifra-pre, .chord-line, .lyric-line, .song-content').forEach(el => {
+    el.style.fontSize = base + 'rem';
+  });
+  const label = document.getElementById('font-size-label');
+  if (label) label.textContent = fontSize + '%';
+  localStorage.setItem('cifras-fontsize', fontSize);
+}
+
+function changeFontSize(delta) {
+  fontSize = Math.min(160, Math.max(60, fontSize + delta * 10));
+  applyFontSize();
+  // Re-apply after render
+  setTimeout(applyFontSize, 100);
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
+applyFontSize();
 checkUrlParams();
 // Auto-load from cloud on startup
 loadFromCloud();
 </script>
 
-<!-- AUTOSCROLL BAR -->
-<div class="scroll-bar" id="scroll-bar">
+<!-- AUTOSCROLL + FONT BAR -->
+<div class="scroll-bar" id="scroll-bar" style="gap:12px;">
+  <div class="font-ctrl visible" id="font-ctrl">
+    <button class="font-btn" onclick="changeFontSize(-1)" title="Diminuir fonte">A−</button>
+    <span class="font-size-label" id="font-size-label">100%</span>
+    <button class="font-btn" onclick="changeFontSize(+1)" title="Aumentar fonte">A+</button>
+  </div>
+  <div style="width:1px;height:24px;background:var(--line)"></div>
   <button class="scroll-play" id="scroll-play-btn" onclick="toggleScroll()">▶</button>
-  <span class="scroll-label">Velocidade</span>
+  <span class="scroll-label">Vel.</span>
   <input class="scroll-speed" type="range" id="scroll-speed" min="1" max="10" value="3" oninput="updateScrollSpeed()">
   <button class="scroll-close" onclick="hideScrollBar()" title="Fechar">✕</button>
 </div>
