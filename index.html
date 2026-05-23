@@ -72,7 +72,7 @@ header{
 .logout-link:hover{color:var(--red2)}
 
 /* ─── SCREENS ─── */
-.screen{position:fixed;top:var(--hdr);bottom:var(--nav);left:0;right:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;background:var(--bg)}
+.screen{position:fixed;top:var(--hdr);bottom:var(--nav);left:0;right:0;width:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;background:var(--bg)}
 .screen.active{display:block}
 
 /* ─── BOTTOM NAV ─── */
@@ -235,14 +235,14 @@ nav{
 .setlist-empty{text-align:center;padding:60px 24px;color:var(--muted);font-size:0.85rem;line-height:2}
 
 /* ─── CIFRAS SCREEN ─── */
-#screen-cifras{background:var(--cream)}
-.cifras-wrap{padding:20px 16px 32px}
+#screen-cifras{background:var(--cream);width:100%}
+.cifras-wrap{padding:20px 16px 32px;width:100%;box-sizing:border-box}
 .cifras-welcome{text-align:center;padding:80px 24px;color:#8a8680}
 .cifras-welcome-icon{font-size:3rem;opacity:0.15;margin-bottom:16px}
 .cifras-welcome p{font-size:0.88rem;line-height:1.9;max-width:260px;margin:0 auto;color:#7a7670}
-.song-block{margin-bottom:48px;animation:fadeUp 0.3s ease both}
+.song-block{margin-bottom:48px;animation:fadeUp 0.3s ease both;width:100%}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.song-block-hdr{margin-bottom:14px}
+.song-block-hdr{margin-bottom:14px;width:100%}
 .song-block-num{
   font-family:'DM Mono',monospace;font-size:0.65rem;color:#b8a890;
   letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;
@@ -262,8 +262,9 @@ nav{
   background:#fffdf7;border:1px solid #e4d9c8;border-radius:10px;
   padding:18px 16px;font-family:'DM Mono',monospace;font-size:0.8rem;
   overflow-x:auto;box-shadow:0 1px 4px rgba(0,0,0,0.05);
+  width:100%;box-sizing:border-box;display:block;
 }
-.cifra-pre{white-space:pre;font-family:'DM Mono',monospace;font-size:0.8rem;line-height:1.55;display:block}
+.cifra-pre{white-space:pre;font-family:'DM Mono',monospace;font-size:0.8rem;line-height:1.55;display:block;width:100%;min-width:0}
 .chord{color:#8b1a1a;font-weight:700}
 .chord-line{display:block;color:#8b1a1a;font-weight:600}
 .lyric-line{display:block;color:#3a3028;font-family:'DM Mono',monospace;font-size:0.8rem}
