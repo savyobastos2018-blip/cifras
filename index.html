@@ -320,28 +320,9 @@ nav{
 .login-screen{
   position:fixed;inset:0;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:999;padding:32px 28px;
+  z-index:999;
+  transition:opacity 0.6s ease;
 }
-.login-cross{font-size:2.5rem;color:var(--gold);margin-bottom:20px;opacity:0.8}
-.login-title{display:none}
-.login-sub{display:none}
-.login-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:14px}
-.login-field{display:flex;flex-direction:column;gap:5px}
-.login-label{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-.login-input{
-  width:100%;background:var(--bg3);border:1px solid var(--line);border-radius:10px;
-  padding:13px 14px;color:var(--text);font-family:'DM Mono',monospace;
-  font-size:0.9rem;outline:none;-webkit-appearance:none;
-}
-.login-input:focus{border-color:var(--gold)}
-.login-btn{
-  width:100%;background:#F47B20;color:#fff;border:none;border-radius:10px;
-  padding:14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;
-  cursor:pointer;margin-top:4px;letter-spacing:0.5px;
-}
-.login-error{font-size:0.78rem;color:var(--red2);text-align:center;min-height:20px}
-.login-divider{display:flex;align-items:center;gap:12px;color:var(--line);font-size:0.7rem}
-.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line)}
 
   /* ─── AUTOSCROLL ─── */
   .scroll-bar {
@@ -566,19 +547,7 @@ nav{
 
   </svg>
   </div>
-  <img src="logo-icon.png" alt="Cifras Setlist" style="width:150px;height:150px;object-fit:contain;margin-bottom:40px;">
-  <div class="login-box">
-    <div class="login-field">
-      <label class="login-label">Usuário</label>
-      <input class="login-input" type="text" id="login-user" placeholder="seu@email.com" autocomplete="username" autocapitalize="none">
-    </div>
-    <div class="login-field">
-      <label class="login-label">Senha</label>
-      <input class="login-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <div class="login-error" id="login-error"></div>
-    <button class="login-btn" onclick="doLogin()">Entrar</button>
-  </div>
+  <img src="logo-icon.png" alt="Cifras Setlist" style="width:140px;height:140px;object-fit:contain;">
 </div>
 
 <!-- HEADER -->
@@ -791,50 +760,18 @@ function save(){localStorage.setItem('cifras-songs',JSON.stringify(songs));local
 function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTimeout(syncToCloud,1500)}
 
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
-function setCookie(name,val,days){
-  const d=new Date();d.setTime(d.getTime()+(days*24*60*60*1000));
-  document.cookie=name+'='+val+';expires='+d.toUTCString()+';path=/;SameSite=Lax';
-}
-function getCookie(name){
-  const v=document.cookie.match('(^|;)\s*'+name+'\s*=\s*([^;]+)');
-  return v?v.pop():'';
-}
-function isLoggedIn(){
-  return localStorage.getItem('cifras-logged')==='true'||getCookie('cifras-logged')==='true';
-}
-function checkLogin(){
-  if(isLoggedIn()) hideLoginScreen();
-}
-function hideLoginScreen(){
+function hideSplash(){
   const el=document.getElementById('login-screen');
-  el.style.display='none';
-  el.style.pointerEvents='none';
-  el.style.visibility='hidden';
+  el.style.opacity='0';
+  setTimeout(()=>{
+    el.style.display='none';
+    el.style.pointerEvents='none';
+  },600);
 }
-function doLogin(){
-  const user=document.getElementById('login-user').value.trim().toLowerCase();
-  const pass=document.getElementById('login-pass').value;
-  const err=document.getElementById('login-error');
-  if(!user||!pass){err.textContent='Preencha usuário e senha.';return}
-  if(CREDENTIALS[user]&&CREDENTIALS[user]===pass){
-    localStorage.setItem('cifras-logged','true');
-    setCookie('cifras-logged','true',365);
-    hideLoginScreen();
-    loadFromCloud();err.textContent='';
-  }else{err.textContent='Usuário ou senha incorretos.';document.getElementById('login-pass').value=''}
-}
-function doLogout(){
-  localStorage.removeItem('cifras-logged');
-  setCookie('cifras-logged','',0);
-  const ls=document.getElementById('login-screen');
-  ls.style.display='flex';ls.style.pointerEvents='auto';ls.style.visibility='visible';
-  document.getElementById('login-user').value='';
-  document.getElementById('login-pass').value='';
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
-  document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus()});
-});
+// aliases kept for compatibility
+function checkLogin(){ hideSplash(); }
+function doLogout(){}
+
 
 // ─── TRANSPOSE ──────────────────────────────────────────────────────────────
 function noteIdx(n){let i=SHARP.indexOf(n);return i===-1?FLAT.indexOf(n):i}
@@ -1218,8 +1155,8 @@ function renderCifras() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
-checkLogin();
-if(isLoggedIn())checkUrlParams();
+setTimeout(hideSplash, 1500);
+checkUrlParams();
 // visibilitychange removed — load only on explicit ☁ button
 </script>
 
