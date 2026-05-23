@@ -791,15 +791,25 @@ function save(){localStorage.setItem('cifras-songs',JSON.stringify(songs));local
 function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTimeout(syncToCloud,1500)}
 
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
+function setCookie(name,val,days){
+  const d=new Date();d.setTime(d.getTime()+(days*24*60*60*1000));
+  document.cookie=name+'='+val+';expires='+d.toUTCString()+';path=/;SameSite=Lax';
+}
+function getCookie(name){
+  const v=document.cookie.match('(^|;)\s*'+name+'\s*=\s*([^;]+)');
+  return v?v.pop():'';
+}
+function isLoggedIn(){
+  return localStorage.getItem('cifras-logged')==='true'||getCookie('cifras-logged')==='true';
+}
 function checkLogin(){
-  if(localStorage.getItem('cifras-logged')==='true')
-    hideLoginScreen();
+  if(isLoggedIn()) hideLoginScreen();
 }
 function hideLoginScreen(){
-  const el = document.getElementById('login-screen');
-  el.style.display = 'none';
-  el.style.pointerEvents = 'none';
-  el.style.visibility = 'hidden';
+  const el=document.getElementById('login-screen');
+  el.style.display='none';
+  el.style.pointerEvents='none';
+  el.style.visibility='hidden';
 }
 function doLogin(){
   const user=document.getElementById('login-user').value.trim().toLowerCase();
@@ -808,16 +818,16 @@ function doLogin(){
   if(!user||!pass){err.textContent='Preencha usuário e senha.';return}
   if(CREDENTIALS[user]&&CREDENTIALS[user]===pass){
     localStorage.setItem('cifras-logged','true');
+    setCookie('cifras-logged','true',365);
     hideLoginScreen();
     loadFromCloud();err.textContent='';
   }else{err.textContent='Usuário ou senha incorretos.';document.getElementById('login-pass').value=''}
 }
 function doLogout(){
   localStorage.removeItem('cifras-logged');
-  const ls = document.getElementById('login-screen');
-  ls.style.display='flex';
-  ls.style.pointerEvents='auto';
-  ls.style.visibility='visible';
+  setCookie('cifras-logged','',0);
+  const ls=document.getElementById('login-screen');
+  ls.style.display='flex';ls.style.pointerEvents='auto';ls.style.visibility='visible';
   document.getElementById('login-user').value='';
   document.getElementById('login-pass').value='';
 }
@@ -1209,7 +1219,7 @@ function renderCifras() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkLogin();
-if(localStorage.getItem('cifras-logged')==='true')checkUrlParams();
+if(isLoggedIn())checkUrlParams();
 // visibilitychange removed — load only on explicit ☁ button
 </script>
 
