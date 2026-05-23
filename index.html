@@ -913,7 +913,6 @@ function checkUrlParams(){
 
   if(title&&content){
     _importDone = true;
-    hideSplash();
     document.getElementById('f-title').value=title;
     document.getElementById('f-artist').value=artist||'';
     document.getElementById('f-content').value=content;
@@ -1189,7 +1188,6 @@ checkUrlParams();
 </div>
 
 <script>
-function hideSplash(){} // splash removed
 
 // ─── CONSTANTS ─────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -1531,7 +1529,6 @@ function checkUrlParams(){
 
   if(title&&content){
     _importDone = true;
-    hideSplash();
     document.getElementById('f-title').value=title;
     document.getElementById('f-artist').value=artist||'';
     document.getElementById('f-content').value=content;
