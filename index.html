@@ -1174,7 +1174,9 @@ function renderCifras() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
+// Run checkUrlParams both immediately and after splash (in case modal was blocked)
 checkUrlParams();
+setTimeout(checkUrlParams, 3400);
 // Remove splash from DOM after CSS animation completes
 setTimeout(()=>{
   const el=document.getElementById('login-screen');
