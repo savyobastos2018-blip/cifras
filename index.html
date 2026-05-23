@@ -1193,20 +1193,6 @@ checkUrlParams();
 
 <script>
 
-// ─── CONSTANTS ─────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  'Refrãos Contemplativos','Acolhida','Perdão','Glória',
-  'Acolhida da Palavra','Aclamação','Oferendas','Santo',
-  'Paz','Cordeiro','Comunhão','Envio','Semana Santa',
-  'Festas Litúrgicas','Cantos Penitenciais','Celebrações Diversas',
-  'Diversos','Família'
-];
-const CREDENTIALS = {'savyobastos2018@gmail.com':'@Savyo0810'};
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyemXA2nPsK9ZE_d5C1BpTKQzX3wq35ZBDIkxGGlwIHSHEmvajKeCcx5tAJ28MH3Alm/exec';
-const SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-const CHORD_RE = /^[A-G](#|b)?(m|maj|min|sus|dim|aug|add)?[0-9]*(\/[A-G](#|b)?)?[+]?$/;
-
 // ─── STATE ──────────────────────────────────────────────────────────────────
 let songs   = JSON.parse(localStorage.getItem('cifras-songs')   || '[]');
 let setlist = JSON.parse(localStorage.getItem('cifras-setlist') || '[]');
