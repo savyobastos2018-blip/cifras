@@ -661,16 +661,36 @@ async function syncToCloud(){
 async function loadFromCloud(){
   showSync('☁️ Carregando…');
   try{
-    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(SCRIPT_URL+'?action=load&t='+Date.now());
-    const res=await fetch(proxyUrl);
-    const data=await res.json();
-    const rows=JSON.parse(data.contents);
+    let rows = null;
+    const loadUrl = SCRIPT_URL+'?action=load&t='+Date.now();
+    
+    // Try direct first
+    try {
+      const r = await fetch(loadUrl);
+      rows = await r.json();
+    } catch(e1) {
+      // Try allorigins proxy
+      try {
+        const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(loadUrl);
+        const r2 = await fetch(proxyUrl);
+        const d2 = await r2.json();
+        rows = JSON.parse(d2.contents);
+      } catch(e2) {
+        // Try corsproxy
+        const proxyUrl2='https://corsproxy.io/?'+encodeURIComponent(loadUrl);
+        const r3 = await fetch(proxyUrl2);
+        rows = await r3.json();
+      }
+    }
     if(!rows||!rows.length){showSync('Nuvem vazia.');return}
     songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
     const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
     setlist=Object.keys(sm).sort((a,b)=>a-b).map(k=>sm[k]);
     save();renderAll();showSync('✅ Carregado!');
-  }catch(e){showSync('');console.warn('Cloud load skipped:',e.message)}  // silent fail
+  } catch(e) {
+    showSync('❌ Erro: '+e.message, false);
+    console.error('loadFromCloud error:', e);
+  }
 }
 
 // ─── RENDER ALL ─────────────────────────────────────────────────────────────
@@ -1260,16 +1280,36 @@ async function syncToCloud(){
 async function loadFromCloud(){
   showSync('☁️ Carregando…');
   try{
-    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(SCRIPT_URL+'?action=load&t='+Date.now());
-    const res=await fetch(proxyUrl);
-    const data=await res.json();
-    const rows=JSON.parse(data.contents);
+    let rows = null;
+    const loadUrl = SCRIPT_URL+'?action=load&t='+Date.now();
+    
+    // Try direct first
+    try {
+      const r = await fetch(loadUrl);
+      rows = await r.json();
+    } catch(e1) {
+      // Try allorigins proxy
+      try {
+        const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(loadUrl);
+        const r2 = await fetch(proxyUrl);
+        const d2 = await r2.json();
+        rows = JSON.parse(d2.contents);
+      } catch(e2) {
+        // Try corsproxy
+        const proxyUrl2='https://corsproxy.io/?'+encodeURIComponent(loadUrl);
+        const r3 = await fetch(proxyUrl2);
+        rows = await r3.json();
+      }
+    }
     if(!rows||!rows.length){showSync('Nuvem vazia.');return}
     songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
     const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
     setlist=Object.keys(sm).sort((a,b)=>a-b).map(k=>sm[k]);
     save();renderAll();showSync('✅ Carregado!');
-  }catch(e){showSync('');console.warn('Cloud load skipped:',e.message)}  // silent fail
+  } catch(e) {
+    showSync('❌ Erro: '+e.message, false);
+    console.error('loadFromCloud error:', e);
+  }
 }
 
 // ─── RENDER ALL ─────────────────────────────────────────────────────────────
