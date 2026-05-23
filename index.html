@@ -11,26 +11,29 @@
 <meta name="apple-mobile-web-app-title" content="Cifras Setlist">
 <meta name="theme-color" content="#0f0e0c">
 <link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <style>
 :root {
-  --bg:       #0f0e0c;
-  --bg2:      #1a1916;
-  --bg3:      #242220;
-  --bg4:      #2e2c28;
-  --line:     #3a3830;
-  --muted:    #6b6860;
-  --text:     #e8e4dc;
-  --text2:    #b8b4ac;
-  --gold:     #c8930a;
-  --gold2:    #e8aa20;
+  --bg:       #111111;
+  --bg2:      #1a1a1a;
+  --bg3:      #242424;
+  --bg4:      #2e2e2e;
+  --line:     #333333;
+  --muted:    #777777;
+  --text:     #f0f0f0;
+  --text2:    #aaaaaa;
+  --orange:   #F47B20;
+  --orange2:  #ff9340;
   --red:      #8b1a1a;
   --red2:     #c43030;
-  --cream:    #f5f0e8;
-  --card:     #1e1c19;
+  --cream:    #f8f5f0;
+  --card:     #1c1c1c;
   --hdr:      56px;
   --nav:      64px;
+  /* alias gold → orange for compatibility */
+  --gold:     #F47B20;
+  --gold2:    #ff9340;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -49,7 +52,7 @@ header{
   padding:0 16px;z-index:300;
 }
 .hdr-logo{
-  font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;
+  font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:700;
   color:var(--text);letter-spacing:0.5px;line-height:1;
   display:flex;align-items:baseline;gap:5px;
 }
@@ -58,7 +61,7 @@ header{
 .hdr-right{display:flex;align-items:center;gap:8px}
 .hdr-sync{font-size:0.68rem;color:var(--muted);min-width:80px;text-align:right}
 .hdr-btn{
-  background:var(--gold);color:var(--bg);border:none;border-radius:6px;
+  background:#F47B20;color:#fff;border:none;border-radius:6px;
   padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:600;
   cursor:pointer;letter-spacing:0.3px;white-space:nowrap;
 }
@@ -88,8 +91,8 @@ nav{
   font-family:'DM Sans',sans-serif;transition:color 0.2s;padding:0;
 }
 .nav-tab .icon{font-size:1.3rem;line-height:1}
-.nav-tab.active{color:var(--gold)}
-.nav-tab.active .icon{filter:drop-shadow(0 0 6px rgba(200,147,10,0.5))}
+.nav-tab.active{color:#F47B20}
+.nav-tab.active .icon{filter:drop-shadow(0 0 8px rgba(244,123,32,0.6))}
 
 /* ─── SEARCH BAR ─── */
 .search-wrap{
@@ -120,7 +123,7 @@ nav{
   cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;
   transition:all 0.15s;letter-spacing:0.3px;flex-shrink:0;
 }
-.cat-pill.active{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.cat-pill.active{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
 
 /* ─── SONG CARDS ─── */
 .songs-list{padding:12px;display:flex;flex-direction:column;gap:8px}
@@ -130,11 +133,11 @@ nav{
 }
 .song-card:active{border-color:var(--gold)}
 .song-card-cat{
-  font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;
-  color:var(--gold);margin-bottom:5px;
+  font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:#F47B20;margin-bottom:5px;
 }
 .song-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
-.song-card-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--text);flex:1;line-height:1.2}
+.song-card-title{font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);flex:1;line-height:1.2}
 .song-card-key{
   font-family:'DM Mono',monospace;font-size:0.72rem;font-weight:500;
   background:var(--bg3);color:var(--gold);padding:3px 8px;border-radius:5px;
@@ -143,7 +146,7 @@ nav{
 .song-card-artist{font-size:0.72rem;color:var(--muted);margin-bottom:12px}
 .song-card-actions{display:flex;gap:6px}
 .btn-setlist{
-  flex:1;background:var(--gold);color:var(--bg);border:none;border-radius:8px;
+  flex:1;background:#F47B20;color:#fff;border:none;border-radius:8px;
   padding:9px;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:700;
   cursor:pointer;letter-spacing:0.3px;
 }
@@ -226,7 +229,7 @@ nav{
 .setlist-item.drag-ghost{opacity:0.35}
 .setlist-item.drag-chosen{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .drag-handle{color:var(--line);font-size:1.1rem;cursor:grab;padding:2px 4px;user-select:none}
-.sl-num{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--gold);min-width:20px;font-weight:500}
+.sl-num{font-family:'DM Mono',monospace;font-size:0.7rem;color:#F47B20;min-width:20px;font-weight:600}
 .sl-info{flex:1;min-width:0}
 .sl-title{font-size:0.88rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .sl-meta{font-size:0.65rem;color:var(--muted);margin-top:2px}
@@ -247,7 +250,7 @@ nav{
   font-family:'DM Mono',monospace;font-size:0.65rem;color:#b8a890;
   letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;
 }
-.song-block-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:#1a1612;line-height:1.1;margin-bottom:3px}
+.song-block-title{font-family:'Nunito',sans-serif;font-size:1.6rem;font-weight:800;color:#1a1612;line-height:1.1;margin-bottom:3px}
 .song-block-meta{font-size:0.72rem;color:#8a8480}
 .transpose-row{display:flex;align-items:center;gap:8px;margin-top:10px}
 .t-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;color:#9a9490;font-family:'DM Mono',monospace}
@@ -257,7 +260,7 @@ nav{
   display:flex;align-items:center;justify-content:center;transition:all 0.15s;
 }
 .t-btn:active{background:var(--red);border-color:var(--red);color:#fff}
-.t-key{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:700;color:var(--red);min-width:26px;text-align:center}
+.t-key{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:700;color:#F47B20;min-width:26px;text-align:center}
 .song-content{
   background:#fffdf7;border:1px solid #e4d9c8;border-radius:10px;
   padding:18px 16px;font-family:'DM Mono',monospace;font-size:0.8rem;
@@ -265,11 +268,11 @@ nav{
   width:100%;box-sizing:border-box;display:block;
 }
 .cifra-pre{white-space:pre;font-family:'DM Mono',monospace;font-size:0.8rem;line-height:1.55;display:block;width:100%;min-width:0}
-.chord{color:#8b1a1a;font-weight:700}
-.chord-line{display:block;color:#8b1a1a;font-weight:600}
+.chord{color:#F47B20;font-weight:700}
+.chord-line{display:block;color:#F47B20;font-weight:700}
 .lyric-line{display:block;color:#3a3028;font-family:'DM Mono',monospace;font-size:0.8rem}
 .section-label{
-  display:inline-block;background:#8b4513;color:#fff;
+  display:inline-block;background:#F47B20;color:#fff;
   font-family:'DM Mono',monospace;font-size:0.58rem;font-weight:700;
   padding:2px 8px;border-radius:3px;letter-spacing:1.2px;text-transform:uppercase;
   margin-bottom:5px;margin-top:12px;
@@ -292,7 +295,7 @@ nav{
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-handle{width:36px;height:3px;background:var(--line);border-radius:2px;margin:10px auto 0}
 .modal-hdr{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--text)}
+.modal-title{font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text)}
 .modal-close{background:var(--bg3);border:none;color:var(--muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center}
 .modal-body{padding:18px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
 .form-group{display:flex;flex-direction:column;gap:5px}
@@ -307,7 +310,7 @@ nav{
 .form-hint{font-size:0.68rem;color:var(--muted);line-height:1.5}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:8px}
 .btn-cancel{background:var(--bg3);border:none;color:var(--text2);border-radius:10px;padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer}
-.btn-save{flex:1;background:var(--gold);color:var(--bg);border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;letter-spacing:0.3px}
+.btn-save{flex:1;background:#F47B20;color:#fff;border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;letter-spacing:0.3px}
 
 /* ─── IMPORT STATUS ─── */
 .import-status{font-size:0.78rem;min-height:20px;padding:0 2px}
@@ -319,7 +322,7 @@ nav{
   z-index:999;padding:32px 28px;
 }
 .login-cross{font-size:2.5rem;color:var(--gold);margin-bottom:20px;opacity:0.8}
-.login-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--text);letter-spacing:0.5px;margin-bottom:4px;text-align:center}
+.login-title{font-family:'Nunito',sans-serif;font-size:2rem;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px;text-align:center}
 .login-sub{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2.5px;margin-bottom:40px;text-align:center}
 .login-box{width:100%;max-width:320px;display:flex;flex-direction:column;gap:14px}
 .login-field{display:flex;flex-direction:column;gap:5px}
@@ -331,7 +334,7 @@ nav{
 }
 .login-input:focus{border-color:var(--gold)}
 .login-btn{
-  width:100%;background:var(--gold);color:var(--bg);border:none;border-radius:10px;
+  width:100%;background:#F47B20;color:#fff;border:none;border-radius:10px;
   padding:14px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:700;
   cursor:pointer;margin-top:4px;letter-spacing:0.5px;
 }
@@ -358,8 +361,8 @@ nav{
   }
   .scroll-bar.visible { display: flex; }
   .scroll-play {
-    background: var(--gold);
-    color: var(--bg);
+    background: #F47B20;
+    color: #fff;
     border: none;
     border-radius: 50%;
     width: 36px; height: 36px;
@@ -409,8 +412,9 @@ nav{
 
 <!-- LOGIN -->
 <div class="login-screen" id="login-screen">
-  <div class="login-cross">✝</div>
-  <div class="login-title">Cifras Setlist</div>
+  <img src="logo-icon.png" alt="Logo" style="width:120px;height:120px;object-fit:contain;margin-bottom:20px;">
+  <div class="login-title" style="font-family:'DM Sans',sans-serif;font-size:1.8rem;font-weight:800;color:#F47B20;letter-spacing:-0.5px">cifras</div>
+  <div class="login-title" style="font-family:'DM Sans',sans-serif;font-size:1.8rem;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-top:-8px;margin-bottom:4px">setlist</div>
   <div class="login-sub">Cantos Litúrgicos</div>
   <div class="login-box">
     <div class="login-field">
@@ -429,8 +433,7 @@ nav{
 <!-- HEADER -->
 <header>
   <div class="hdr-logo">
-    <span>Cifras <em>Setlist</em></span>
-    <small>Liturgia</small>
+    <img src="logo-full.png" alt="Cifras Setlist" style="height:32px;object-fit:contain;display:block;">
   </div>
   <div class="hdr-right">
     <span class="hdr-sync" id="sync-status"></span>
