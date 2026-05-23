@@ -471,7 +471,7 @@ nav{
   <button class="nav-tab" onclick="showScreen('setlist')" id="tab-setlist">
     <span class="icon">☰</span>Setlist
   </button>
-  <button class="nav-tab" onclick="showScreen('cifras')" id="tab-cifras">
+  <button class="nav-tab" onclick="showScreen('cifras');showScrollBar();" id="tab-cifras">
     <span class="icon">♬</span>Cifras
   </button>
 </nav>
@@ -984,7 +984,8 @@ let scrollInterval = null;
 let scrollPx = 1.2; // pixels per tick
 
 function showScrollBar() {
-  document.getElementById('scroll-bar').classList.add('visible');
+  const sb = document.getElementById('scroll-bar');
+  if(sb) sb.classList.add('visible');
 }
 
 function hideScrollBar() {
@@ -1118,7 +1119,7 @@ loadFromCloud();
   <button class="nav-tab" onclick="showScreen('setlist')" id="tab-setlist">
     <span class="icon">☰</span>Setlist
   </button>
-  <button class="nav-tab" onclick="showScreen('cifras')" id="tab-cifras">
+  <button class="nav-tab" onclick="showScreen('cifras');showScrollBar();" id="tab-cifras">
     <span class="icon">♬</span>Cifras
   </button>
 </nav>
@@ -1605,7 +1606,8 @@ let scrollInterval = null;
 let scrollPx = 1.2; // pixels per tick
 
 function showScrollBar() {
-  document.getElementById('scroll-bar').classList.add('visible');
+  const sb = document.getElementById('scroll-bar');
+  if(sb) sb.classList.add('visible');
 }
 
 function hideScrollBar() {
@@ -1678,12 +1680,7 @@ loadFromCloud();
 </script>
 
 <!-- AUTOSCROLL + FONT BAR -->
-<div class="scroll-bar" id="scroll-bar" style="gap:12px;">
-  <div class="font-ctrl visible" id="font-ctrl">
-    <button class="font-btn" onclick="changeFontSize(-1)" title="Diminuir fonte">A−</button>
-    <span class="font-size-label" id="font-size-label">100%</span>
-    <button class="font-btn" onclick="changeFontSize(+1)" title="Aumentar fonte">A+</button>
-  </div>
+
   <div style="width:1px;height:24px;background:var(--line)"></div>
   <button class="scroll-play" id="scroll-play-btn" onclick="toggleScroll()">▶</button>
   <span class="scroll-label">Vel.</span>
