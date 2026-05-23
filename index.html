@@ -874,28 +874,23 @@ async function syncToCloud(){
   try{
     const rows=songs.map(s=>[s.id,s.title,s.artist||'',s.key,s.content,
       setlist.includes(s.id)?setlist.indexOf(s.id):'',s.category||'']);
-    const params=new URLSearchParams({action:'save',songs:JSON.stringify(rows)});
-    const proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(SCRIPT_URL+'?'+params.toString());
-    const res=await fetch(proxyUrl);
-    const data=await res.json();
-    if(data.contents&&(data.contents.includes('OK')||data.status===200))showSync('✅ Salvo!');
-    else throw new Error('Falha ao salvar');
+    const fd=new FormData();fd.append('action','save');fd.append('songs',JSON.stringify(rows));
+    await fetch(SCRIPT_URL,{method:'POST',body:fd,mode:'no-cors'});
+    showSync('✅ Salvo!');
   }catch(e){showSync('❌ Erro ao salvar',false);console.error(e)}
   cloudSyncing=false;
 }
 async function loadFromCloud(){
   showSync('☁️ Carregando…');
   try{
-    const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(SCRIPT_URL+'?action=load');
-    const res=await fetch(proxy);
-    const data=await res.json();
-    const rows=JSON.parse(data.contents);
+    const res=await fetch(SCRIPT_URL+'?action=load&t='+Date.now());
+    const rows=await res.json();
     if(!rows||!rows.length){showSync('Nuvem vazia.');return}
     songs=rows.map(r=>({id:r[0]||uid(),title:r[1]||'',artist:r[2]||'',key:r[3]||'G',content:r[4]||'',category:r[6]||''}));
     const sm={};rows.forEach(r=>{if(r[5]!==''&&r[5]!=null)sm[parseInt(r[5])]=r[0]});
     setlist=Object.keys(sm).sort((a,b)=>a-b).map(k=>sm[k]);
     save();renderAll();showSync('✅ Carregado!');
-  }catch(e){showSync('❌ Erro ao carregar',false);console.error(e)}
+  }catch(e){showSync('');console.warn('Cloud load skipped:',e.message)}  // silent fail
 }
 
 // ─── RENDER ALL ─────────────────────────────────────────────────────────────
@@ -1214,8 +1209,8 @@ function renderCifras() {
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
 checkLogin();
-if(localStorage.getItem('cifras-logged')==='true')loadFromCloud().finally(()=>checkUrlParams());
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&localStorage.getItem('cifras-logged')==='true')loadFromCloud()});
+if(localStorage.getItem('cifras-logged')==='true')checkUrlParams();
+// visibilitychange removed — load only on explicit ☁ button
 </script>
 
 <!-- AUTOSCROLL BAR -->
