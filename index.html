@@ -318,7 +318,6 @@ nav{
 
 /* ─── LOGIN ─── */
 .login-screen{
-  position:relative;
   position:fixed;inset:0;background:var(--bg);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:999;padding:32px 28px;
@@ -795,7 +794,13 @@ function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTim
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
 function checkLogin(){
   if(sessionStorage.getItem('cifras-logged')==='true')
-    document.getElementById('login-screen').style.display='none';
+    hideLoginScreen();
+}
+function hideLoginScreen(){
+  const el = document.getElementById('login-screen');
+  el.style.display = 'none';
+  el.style.pointerEvents = 'none';
+  el.style.visibility = 'hidden';
 }
 function doLogin(){
   const user=document.getElementById('login-user').value.trim().toLowerCase();
@@ -804,13 +809,16 @@ function doLogin(){
   if(!user||!pass){err.textContent='Preencha usuário e senha.';return}
   if(CREDENTIALS[user]&&CREDENTIALS[user]===pass){
     sessionStorage.setItem('cifras-logged','true');
-    document.getElementById('login-screen').style.display='none';
+    hideLoginScreen();
     loadFromCloud();err.textContent='';
   }else{err.textContent='Usuário ou senha incorretos.';document.getElementById('login-pass').value=''}
 }
 function doLogout(){
   sessionStorage.removeItem('cifras-logged');
-  document.getElementById('login-screen').style.display='flex';
+  const ls = document.getElementById('login-screen');
+  ls.style.display='flex';
+  ls.style.pointerEvents='auto';
+  ls.style.visibility='visible';
   document.getElementById('login-user').value='';
   document.getElementById('login-pass').value='';
 }
