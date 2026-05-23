@@ -762,11 +762,11 @@ function scheduleSync(){clearTimeout(window._syncTimer);window._syncTimer=setTim
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
 function hideSplash(){
   const el=document.getElementById('login-screen');
+  if(!el) return;
+  el.style.transition='opacity 0.5s ease';
   el.style.opacity='0';
-  setTimeout(()=>{
-    el.style.display='none';
-    el.style.pointerEvents='none';
-  },600);
+  el.style.pointerEvents='none';
+  setTimeout(()=>{ el.style.display='none'; }, 550);
 }
 // aliases kept for compatibility
 function checkLogin(){ hideSplash(); }
@@ -1155,8 +1155,13 @@ function renderCifras() {
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderAll();
-setTimeout(hideSplash, 1500);
 checkUrlParams();
+// Hide splash after 1.2s, with 2s failsafe
+setTimeout(hideSplash, 1200);
+setTimeout(()=>{
+  const el=document.getElementById('login-screen');
+  if(el){ el.style.display='none'; el.style.pointerEvents='none'; }
+}, 2500);
 // visibilitychange removed — load only on explicit ☁ button
 </script>
 
