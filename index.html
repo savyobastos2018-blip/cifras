@@ -748,6 +748,59 @@
   }
   .logout-btn:hover { color: #c47070; }
 
+
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--bg-dark3);
+  }
+
+  .cat-btn {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1.5px solid var(--bg-dark3);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .cat-btn.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: var(--dark);
+  }
+
+  .song-card-category {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent2);
+    margin-bottom: 4px;
+  }
+
+  .category-select {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.88rem;
+    padding: 11px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream);
+    color: var(--dark);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .category-select:focus { border-color: var(--accent); }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -774,6 +827,7 @@
   <div class="search-bar">
     <input class="search-input" type="text" id="search-input" placeholder="Buscar música ou artista…" oninput="filterSongs(this.value)">
   </div>
+  <div class="category-filter" id="category-filter"></div>
   <div class="songs-list" id="songs-list"></div>
 </div>
 
@@ -826,6 +880,33 @@
           <option>Gb</option><option>G</option><option>G#</option>
           <option>Ab</option><option>A</option><option>A#</option>
           <option>Bb</option><option>B</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <select class="category-select" id="f-category">
+          <option value="">Sem categoria</option>
+          <optgroup label="── Missa ──">
+            <option>Entrada / Acolhida</option>
+            <option>Perdão</option>
+            <option>Glória</option>
+            <option>Aclamação</option>
+            <option>Ofertório</option>
+            <option>Santo</option>
+            <option>Paz</option>
+            <option>Cordeiro</option>
+            <option>Comunhão</option>
+            <option>Envio</option>
+          </optgroup>
+          <optgroup label="── RCC / Louvor ──">
+            <option>Louvor</option>
+            <option>Entrega</option>
+            <option>Espírito Santo</option>
+            <option>Acolhida RCC</option>
+            <option>Final</option>
+            <option>Nossa Senhora</option>
+            <option>Diversas</option>
+          </optgroup>
         </select>
       </div>
       <div class="form-group">
@@ -982,12 +1063,37 @@ function showScreen(name) {
 }
 
 // ─── RENDER: MÚSICAS ──────────────────────────────────────────────────────────
+const CATEGORIES = [
+  'Entrada / Acolhida','Perdão','Glória','Aclamação','Ofertório',
+  'Santo','Paz','Cordeiro','Comunhão','Envio',
+  'Louvor','Entrega','Espírito Santo','Acolhida RCC','Final','Nossa Senhora','Diversas'
+];
+
+let activeCategory = '';
+
+function renderCategoryFilter() {
+  const el = document.getElementById('category-filter');
+  const all = `<button class="cat-btn ${activeCategory===''?'active':''}" onclick="setCategory('')">Todas</button>`;
+  const cats = CATEGORIES.map(c =>
+    `<button class="cat-btn ${activeCategory===c?'active':''}" onclick="setCategory('${c}')">${c}</button>`
+  ).join('');
+  el.innerHTML = all + cats;
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderCategoryFilter();
+  renderSongs(document.getElementById('search-input').value);
+}
+
 function renderSongs(q = '') {
   const el = document.getElementById('songs-list');
-  const list = songs.filter(s =>
-    s.title.toLowerCase().includes(q.toLowerCase()) ||
-    (s.artist||'').toLowerCase().includes(q.toLowerCase())
-  );
+  const list = songs.filter(s => {
+    const matchQ = s.title.toLowerCase().includes(q.toLowerCase()) ||
+      (s.artist||'').toLowerCase().includes(q.toLowerCase());
+    const matchCat = !activeCategory || s.category === activeCategory;
+    return matchQ && matchCat;
+  });
   if (!list.length) { el.innerHTML = `<div class="no-results">Nenhuma música encontrada.</div>`; return; }
   el.innerHTML = list.map(s => `
     <div class="song-card">
@@ -1162,27 +1268,29 @@ function openModal(id=null) {
   editingId = id;
   const s = id ? songs.find(x=>x.id===id) : null;
   document.getElementById('modal-title-text').textContent = s ? 'Editar Música' : 'Nova Música';
-  document.getElementById('f-title').value   = s?.title   || '';
-  document.getElementById('f-key').value     = s?.key     || 'G';
-  document.getElementById('f-artist').value  = s?.artist  || '';
-  document.getElementById('f-content').value = s?.content || '';
+  document.getElementById('f-title').value    = s?.title    || '';
+  document.getElementById('f-key').value      = s?.key      || 'G';
+  document.getElementById('f-category').value = s?.category || '';
+  document.getElementById('f-artist').value   = s?.artist   || '';
+  document.getElementById('f-content').value  = s?.content  || '';
   document.getElementById('modal').classList.add('open');
 }
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); editingId=null; }
 
 function saveSong() {
-  const title   = document.getElementById('f-title').value.trim();
-  const key     = document.getElementById('f-key').value;
-  const artist  = document.getElementById('f-artist').value.trim();
-  const content = document.getElementById('f-content').value.trim();
+  const title    = document.getElementById('f-title').value.trim();
+  const key      = document.getElementById('f-key').value;
+  const category = document.getElementById('f-category').value;
+  const artist   = document.getElementById('f-artist').value.trim();
+  const content  = document.getElementById('f-content').value.trim();
   if (!title)   { alert('Informe o título.'); return; }
   if (!content) { alert('Informe a cifra.');  return; }
   if (editingId) {
     const s = songs.find(x=>x.id===editingId);
-    if (s) { s.title=title; s.key=key; s.artist=artist; s.content=content; }
+    if (s) { s.title=title; s.key=key; s.category=category; s.artist=artist; s.content=content; }
   } else {
-    songs.push({ id:uid(), title, key, artist, content });
+    songs.push({ id:uid(), title, key, category, artist, content });
   }
   save(); closeModal();
   renderSongs(document.getElementById('search-input').value);
@@ -1365,7 +1473,8 @@ async function syncToCloud() {
   try {
     const rows = songs.map(s => [
       s.id, s.title, s.artist || '', s.key, s.content,
-      setlist.includes(s.id) ? setlist.indexOf(s.id) : ''
+      setlist.includes(s.id) ? setlist.indexOf(s.id) : '',
+      s.category || ''
     ]);
     const formData = new FormData();
     formData.append('action', 'save');
@@ -1395,11 +1504,12 @@ async function loadFromCloud() {
       return;
     }
     songs = rows.map(r => ({
-      id:      r[0] || uid(),
-      title:   r[1] || '',
-      artist:  r[2] || '',
-      key:     r[3] || 'G',
-      content: r[4] || ''
+      id:       r[0] || uid(),
+      title:    r[1] || '',
+      artist:   r[2] || '',
+      key:      r[3] || 'G',
+      content:  r[4] || '',
+      category: r[6] || ''
     }));
     const setlistMap = {};
     rows.forEach(r => {
@@ -1486,6 +1596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+renderCategoryFilter();
 renderSongs();
 renderSetlist();
 renderCifras();
