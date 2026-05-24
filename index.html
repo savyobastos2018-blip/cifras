@@ -825,9 +825,9 @@ function renderCifras(){
         <div class="song-block-meta">${s.artist||''}${s.key?' · Tom original: '+s.key:''}</div>
         <div class="transpose-row">
           <span class="t-label">Tom</span>
-          <button class="t-btn" onclick="transpose('${id}',-1)">−</button>
+          <button class="t-btn" data-id="${id}" data-delta="-1" onclick="transpose(this.dataset.id, parseInt(this.dataset.delta))">−</button>
           <span class="t-key">${key}</span>
-          <button class="t-btn" onclick="transpose('${id}',+1)">+</button>
+          <button class="t-btn" data-id="${id}" data-delta="1" onclick="transpose(this.dataset.id, parseInt(this.dataset.delta))">+</button>
         </div>
       </div>
       <div class="song-content">${parseCifra(content)}</div>
@@ -1447,9 +1447,9 @@ function renderCifras(){
         <div class="song-block-meta">${s.artist||''}${s.key?' · Tom original: '+s.key:''}</div>
         <div class="transpose-row">
           <span class="t-label">Tom</span>
-          <button class="t-btn" onclick="transpose('${id}',-1)">−</button>
+          <button class="t-btn" data-id="${id}" data-delta="-1" onclick="transpose(this.dataset.id, parseInt(this.dataset.delta))">−</button>
           <span class="t-key">${key}</span>
-          <button class="t-btn" onclick="transpose('${id}',+1)">+</button>
+          <button class="t-btn" data-id="${id}" data-delta="1" onclick="transpose(this.dataset.id, parseInt(this.dataset.delta))">+</button>
         </div>
       </div>
       <div class="song-content">${parseCifra(content)}</div>
